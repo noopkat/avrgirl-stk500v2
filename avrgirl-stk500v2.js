@@ -34,7 +34,7 @@ avrgirlStk500v2.prototype._setupComms = function() {
   var self = this;
   // libusb
   this.open();
-  this.device._setUpInterface(function(error) {
+  this.device.setUpInterface(function(error) {
     if (!error) {
       setImmediate(emitReady, self);
     }
@@ -53,7 +53,7 @@ avrgirlStk500v2.prototype.close = function() {
   this.device.close();
 };
 
-avrgirlStk500v2.prototype._write = function (buffer, callback) {
+avrgirlStk500v2.prototype.write = function (buffer, callback) {
   if (!Buffer.isBuffer(buffer)) {
     if (!Array.isArray(buffer)) {
       return callback(new Error('Failed to write: data was not Buffer or Array object.'));
@@ -66,14 +66,14 @@ avrgirlStk500v2.prototype._write = function (buffer, callback) {
   });
 };
 
-avrgirlStk500v2.prototype._read = function (length, callback) {
+avrgirlStk500v2.prototype.read = function (length, callback) {
   if (typeof length !== 'number') { callback(new Error('Failed to read: length must be a number.')) }
   this.device.conn.endpointIn.transfer(length, function (error, data) {
     callback(error, data);
   });
 };
 
-avrgirlStk500v2.prototype._sendCmd = function(cmd, callback) {
+avrgirlStk500v2.prototype.sendCmd = function(cmd, callback) {
   var self = this;
   this._write(cmd, function (error) {
     if (error) { callback(error); }
