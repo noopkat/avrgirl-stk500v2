@@ -22,5 +22,12 @@
   "bugs": {
     "url": "https://github.com/noopkat/avrgirl-stk500v2/issues"
   },
-  "homepage": "https://github.com/noopkat/avrgirl-stk500v2#readme"
+  "homepage": "https://github.com/noopkat/avrgirl-stk500v2#readme",
+  "dependencies": {
+    "async": "^1.4.0"
+  },
+  "devDependencies": {
+    "tap-spec": "^4.0.2",
+    "tape": "^4.0.1"
+  }
 }
