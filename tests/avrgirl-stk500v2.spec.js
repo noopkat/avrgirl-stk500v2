@@ -223,3 +223,22 @@ test('[ AVRGIRL-STK500V2 ] ::verifyProgrammer', function (t) {
   });
 });
 
+//enterProgrammingMode
+//writeMem
+//loadPage
+//loadAddress
+
+
+test('[ AVRGIRL-STK500V2 ] ::exitProgrammingMode', function (t) {
+  var a = new avrgirl(FLoptions);
+  var spy = sinon.spy(a, 'sendCmd');
+  var buf = new Buffer([0x11, 0x01, 0x01]);
+
+  t.plan(2);
+
+  a.exitProgrammingMode(function(error) {
+    t.ok(spy.calledWith(buf), 'called sendCmd with correct cmd');
+    t.error(error, 'no error on callback');
+  });
+});
+
