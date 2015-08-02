@@ -375,9 +375,26 @@ test('[ AVRGIRL-STK500V2 ] ::getParameter', function (t) {
   });
 });
 
+// this needs more work to cover each successive command sent, etc
+test('[ AVRGIRL-STK500V2 ] ::readFuses', function (t) {
+  var a = new avrgirl(FLoptions);
+  var spyw = sinon.spy(a, 'write');
+  var spyr = sinon.spy(a, 'read');
+  var buf = new Buffer([0x18, 0x00]);
+  var fuses = 3;
+
+  t.plan(4);
+
+  a.readFuses(function(error, data) {
+    t.equals(spyw.callCount, fuses, 'called write for each fuse');
+    t.equals(spyr.callCount, fuses, 'called read for each fuse');
+    t.error(error, 'no error on callback');
+    t.equals(data.length, fuses, 'got paramater data back, correct length');
+  });
+});
+
 // TODO:
 // readChipSignature
-// readFuses
 // writeMem
 
 require('./libusb-comms.spec');
