@@ -266,13 +266,13 @@ avrgirlStk500v2.prototype.eraseChip = function (callback) {
   });
 };
 
-// avrgirlStk500v2.prototype.writeFlash = function (hex, callback) {
-//   // optional convenience method
-// };
+avrgirlStk500v2.prototype.writeFlash = function (hex, callback) {
+  // optional convenience method
+};
 
-// avrgirlStk500v2.prototype.writeEeprom = function (hex, callback) {
-//  // optional convenience method
-// };
+avrgirlStk500v2.prototype.writeEeprom = function (hex, callback) {
+ // optional convenience method
+};
 
 avrgirlStk500v2.prototype.readFlash = function (length, callback) {
   var self = this;
