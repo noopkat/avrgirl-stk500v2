@@ -223,11 +223,47 @@ test('[ AVRGIRL-STK500V2 ] ::verifyProgrammer', function (t) {
   });
 });
 
-//enterProgrammingMode
 //writeMem
 //loadPage
-//loadAddress
 
+test('[ AVRGIRL-STK500V2 ] ::loadAddress', function (t) {
+  var a = new avrgirl(FLoptions);
+  var spy = sinon.spy(a, 'sendCmd');
+  var dMSB1 = 0x80;
+  var dMSB2 = 0x00;
+  var msb1 = (0 >> 24) & 0xFF | dMSB1;
+  var msb2 = (0 >> 24) & 0xFF | dMSB2;
+  var xsb = (0 >> 16) & 0xFF;
+  var ysb = (0 >> 8) & 0xFF;
+  var lsb = 0 & 0xFF;
+
+  var buf1 = new Buffer([0x06, msb1, xsb, ysb, lsb]);
+  var buf2 = new Buffer([0x06, msb2, xsb, ysb, lsb]);
+  t.plan(4);
+
+  a.loadAddress('flash', 0, function(error) {
+    t.ok(spy.calledWith(buf1), 'called sendCmd with correct cmd');
+    t.error(error, 'no error on callback');
+  });
+
+  a.loadAddress('eeprom', 0, function(error) {
+    t.ok(spy.calledWith(buf2), 'called sendCmd with correct cmd');
+    t.error(error, 'no error on callback');
+  });
+});
+
+test('[ AVRGIRL-STK500V2 ] ::enterProgrammingMode', function (t) {
+  var a = new avrgirl(FLoptions);
+  var spy = sinon.spy(a, 'sendCmd');
+  var buf = new Buffer([0x10, 0xC8, 0x64, 0x19, 0x20, 0x00, 0x53, 0x03, 0xAC, 0x53, 0x00, 0x00]);
+
+  t.plan(2);
+
+  a.enterProgrammingMode(function(error) {
+    t.ok(spy.calledWith(buf), 'called sendCmd with correct cmd');
+    t.error(error, 'no error on callback');
+  });
+});
 
 test('[ AVRGIRL-STK500V2 ] ::exitProgrammingMode', function (t) {
   var a = new avrgirl(FLoptions);
