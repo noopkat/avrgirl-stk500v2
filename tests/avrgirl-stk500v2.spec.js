@@ -380,3 +380,5 @@ test('[ AVRGIRL-STK500V2 ] ::getParameter', function (t) {
 // readFuses
 // writeMem
 
+require('./libusb-comms.spec');
+
