@@ -9,9 +9,10 @@ function avrgirlStk500v2(options) {
   this.options = {
     comm: options.comm || null,
     chip: options.chip || null,
-    debug: options.debug || false
+    debug: options.debug || false,
+    frameless: options.frameless || false
   };
-
+  this.seq = 0;
   this.debug = this.options.debug ? console.log : function() {};
 
   // if (this.options.comm.deviceDescriptor && typeof this.options.comm.deviceDescriptor === 'object') {
@@ -51,6 +52,23 @@ avrgirlStk500v2.prototype.close = function() {
   this.device.close();
 };
 
+avrgirlStk500v2.prototype.frame = function (buffer) {
+    var lMSB = buffer.length >> 8;
+    var lLSB = buffer.length & 0xFF;
+    var head = new Buffer([0x1B, this.seq, lMSB, lLSB, C.TOKEN]);
+    var headed = Buffer.concat([head, buffer]);
+
+    var checksum = 0;
+    for (var i = 0; i < headed.length; i += 1) {
+      checksum ^= headed[i];
+    }
+
+    this.seq += 1;
+
+    var framed = Buffer.concat([headed, new Buffer([checksum])]);
+    return framed;
+};
+
 avrgirlStk500v2.prototype.write = function (buffer, callback) {
   if (!Buffer.isBuffer(buffer)) {
     if (!Array.isArray(buffer)) {
@@ -59,7 +77,9 @@ avrgirlStk500v2.prototype.write = function (buffer, callback) {
     var buffer = new Buffer(buffer);
   }
 
-  this.device.write(buffer, function (error) {
+  var data = (this.options.frameless) ? buffer : this.frame(buffer);
+
+  this.device.write(data, function (error) {
     callback(error);
   });
 };
