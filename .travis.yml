@@ -6,14 +6,3 @@ node_js:
   - "iojs"
   - "iojs-v1.0.4"
 
-before_install:
-- npm install pangyp -g
-- pangyp -v
-- npm install -g node-gyp
-- npm install -g node-pre-gyp
-- npm update -g npm
-- npm --version
-
-script:
-- npm install --build-from-source --node-gyp=$(which pangyp)
-- npm install usb -g

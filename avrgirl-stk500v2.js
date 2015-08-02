@@ -1,4 +1,3 @@
-var usb = require('usb');
 var C = require('./lib/c');
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
