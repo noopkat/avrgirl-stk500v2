@@ -3,7 +3,7 @@ var C = require('./lib/c');
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 var async = require('async');
-var libusb = require('./lib/libusb-comms.js');
+var libusb = require('./lib/libusb-comms');
 
 function avrgirlStk500v2(options) {
   this.options = {
@@ -53,20 +53,20 @@ avrgirlStk500v2.prototype.close = function() {
 };
 
 avrgirlStk500v2.prototype.frame = function (buffer) {
-    var lMSB = buffer.length >> 8;
-    var lLSB = buffer.length & 0xFF;
-    var head = new Buffer([0x1B, this.seq, lMSB, lLSB, C.TOKEN]);
-    var headed = Buffer.concat([head, buffer]);
+  var lMSB = buffer.length >> 8;
+  var lLSB = buffer.length & 0xFF;
+  var head = new Buffer([0x1B, this.seq, lMSB, lLSB, C.TOKEN]);
+  var headed = Buffer.concat([head, buffer]);
 
-    var checksum = 0;
-    for (var i = 0; i < headed.length; i += 1) {
-      checksum ^= headed[i];
-    }
+  var checksum = 0;
+  for (var i = 0; i < headed.length; i += 1) {
+    checksum ^= headed[i];
+  }
 
-    this.seq += 1;
+  this.seq += 1;
 
-    var framed = Buffer.concat([headed, new Buffer([checksum])]);
-    return framed;
+  var framed = Buffer.concat([headed, new Buffer([checksum])]);
+  return framed;
 };
 
 avrgirlStk500v2.prototype.write = function (buffer, callback) {
@@ -121,7 +121,7 @@ avrgirlStk500v2.prototype.verifySignature = function (sig, data, callback) {
   var error = null;
   if (data[1] === C.STATUS_CMD_OK) {
     var signature = data.slice(3);
-    if (signature.compare(sig)) {
+    if (signature.equals(sig)) {
       error = new Error('Failed to verify: programmer signature does not match.');
     }
   } else {
