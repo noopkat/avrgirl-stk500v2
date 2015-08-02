@@ -389,7 +389,75 @@ test('[ AVRGIRL-STK500V2 ] ::readFuses', function (t) {
     t.equals(spyw.callCount, fuses, 'called write for each fuse');
     t.equals(spyr.callCount, fuses, 'called read for each fuse');
     t.error(error, 'no error on callback');
-    t.equals(data.length, fuses, 'got paramater data back, correct length');
+    t.equals(data.length, fuses, 'got parameter data back, correct length');
+  });
+});
+
+// TODO: test for data length being too large, return error
+test('[ AVRGIRL-STK500V2 ] ::writeFlash', function (t) {
+  var a = new avrgirl(FLoptions);
+  var spy = sinon.spy(a, 'writeMem');
+  var tinydata = new Buffer(50);
+  var largedata = new Buffer(500);
+
+  t.plan(4);
+
+  a.writeFlash(tinydata, function(error) {
+    t.ok(spy.calledWith('flash', tinydata), 'one page: called writeMem with correct args');
+    t.error(error, 'no error on callback');
+  });
+  console.log(' ');
+  a.writeFlash(largedata, function(error) {
+    t.ok(spy.calledWith('flash', largedata), 'multiple pages: called writeMem with correct args');
+    t.error(error, 'no error on callback');
+  });
+});
+
+// TODO: test for data length being too large, return error
+test('[ AVRGIRL-STK500V2 ] ::writeEeprom', function (t) {
+  var a = new avrgirl(FLoptions);
+  var spy = sinon.spy(a, 'writeMem');
+  var tinydata = new Buffer(3);
+  var largedata = new Buffer(20);
+
+  t.plan(4);
+
+  a.writeEeprom(tinydata, function(error) {
+    t.ok(spy.calledWith('eeprom', tinydata), 'one page: called writeMem with correct args');
+    t.error(error, 'no error on callback');
+  });
+  console.log(' ');
+  a.writeEeprom(largedata, function(error) {
+    t.ok(spy.calledWith('eeprom', largedata), 'multiple pages: called writeMem with correct args');
+    t.error(error, 'no error on callback');
+  });
+});
+
+test('[ AVRGIRL-STK500V2 ] ::readEeprom', function (t) {
+  var a = new avrgirl(FLoptions);
+  var spy = sinon.spy(a, 'readMem');
+  var length = 20;
+
+  t.plan(3);
+
+  a.readEeprom(length, function(error, data) {
+    t.ok(spy.calledWith('eeprom', length), 'called readMem with correct length arg');
+    t.equals(data.length, length + 3, 'data returned is correct length');
+    t.error(error, 'no error on callback');
+  });
+});
+
+test('[ AVRGIRL-STK500V2 ] ::readFlash', function (t) {
+  var a = new avrgirl(FLoptions);
+  var spy = sinon.spy(a, 'readMem');
+  var length = 20;
+
+  t.plan(3);
+
+  a.readFlash(length, function(error, data) {
+    t.ok(spy.calledWith('flash', length), 'called readMem with correct length arg');
+    t.equals(data.length, length + 3, 'data returned is correct length');
+    t.error(error, 'no error on callback');
   });
 });
 

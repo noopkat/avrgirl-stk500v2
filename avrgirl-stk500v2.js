@@ -177,7 +177,7 @@ avrgirlStk500v2.prototype.loadPage = function (memType, data, callback) {
   cmd = Buffer.concat([cmd, data]);
 
   this.sendCmd(cmd, function (error) {
-    callback(error);
+    return callback(error);
   });
 };
 
@@ -191,7 +191,13 @@ avrgirlStk500v2.prototype.writeMem = function (memType, hex, callback) {
   var data;
 
   async.whilst(
-    function testEndOfFile() { return pageAddress < hex.length; },
+    function testEndOfFile() {
+      // case for data being flashed being less than one page in size
+      if (pageAddress === 0 && hex.length < pageSize) {
+        return false;
+      }
+      return pageAddress < hex.length;
+    },
     function programPage(pagedone) {
       async.series([
         function loadAddress(done) {
@@ -212,7 +218,7 @@ avrgirlStk500v2.prototype.writeMem = function (memType, hex, callback) {
       });
     },
     function(error) {
-      callback(error);
+      return callback(error);
     }
   );
 };
@@ -272,10 +278,30 @@ avrgirlStk500v2.prototype.eraseChip = function (callback) {
 
 avrgirlStk500v2.prototype.writeFlash = function (hex, callback) {
   // optional convenience method
+  this.writeMem('flash', hex, function(error) {
+    return callback(error);
+  });
 };
 
 avrgirlStk500v2.prototype.writeEeprom = function (hex, callback) {
  // optional convenience method
+ this.writeMem('eeprom', hex, function(error) {
+    callback(error);
+  });
+};
+
+avrgirlStk500v2.prototype.readFlash = function (length, callback) {
+  // optional convenience method
+  this.readMem('flash', length, function(error, data) {
+    callback(error, data);
+  });
+};
+
+avrgirlStk500v2.prototype.readEeprom = function (length, callback) {
+ // optional convenience method
+ this.readMem('eeprom', length, function(error, data) {
+    callback(error, data);
+  });
 };
 
 avrgirlStk500v2.prototype.readMem = function (memType, length, callback) {
