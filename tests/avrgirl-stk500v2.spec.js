@@ -239,7 +239,6 @@ test('[ AVRGIRL-STK500V2 ] ::exitProgrammingMode', function (t) {
   a.exitProgrammingMode(function(error) {
     t.ok(spy.calledWith(buf), 'called sendCmd with correct cmd');
     t.error(error, 'no error on callback');
-    t.error(error, 'no error on callback');
   });
 });
 
