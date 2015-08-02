@@ -61,23 +61,23 @@ avrgirlStk500v2.prototype.write = function (buffer, callback) {
     var buffer = new Buffer(buffer);
   }
 
-  this.device.conn.endpointOut.transfer(buffer, function (error) {
+  this.device.write(buffer, function (error) {
     callback(error);
   });
 };
 
 avrgirlStk500v2.prototype.read = function (length, callback) {
   if (typeof length !== 'number') { callback(new Error('Failed to read: length must be a number.')) }
-  this.device.conn.endpointIn.transfer(length, function (error, data) {
+  this.device.read(length, function (error, data) {
     callback(error, data);
   });
 };
 
 avrgirlStk500v2.prototype.sendCmd = function(cmd, callback) {
   var self = this;
-  this._write(cmd, function (error) {
+  this.write(cmd, function (error) {
     if (error) { callback(error); }
-    self._read(2, function (error, data) {
+    self.read(2, function (error, data) {
       if (!error && data.length > 0 && data[1] !== C.STATUS_CMD_OK) {
         var error = new Error('Return status was not OK. Received instead: ' + data.toString('hex'));
       }
@@ -91,9 +91,9 @@ avrgirlStk500v2.prototype.getSignature = function (callback) {
   var cmd = new Buffer([C.CMD_SIGN_ON]);
   var length = 17;
 
-  this._write(cmd, function (error) {
+  this.write(cmd, function (error) {
     if (error) { callback(error); }
-    self._read(length, function (error, data) {
+    self.read(length, function (error, data) {
       callback(error, data);
     });
   });
@@ -130,7 +130,7 @@ avrgirlStk500v2.prototype.loadAddress = function (memType, address, callback) {
 
   var cmd = new Buffer([C.CMD_LOAD_ADDRESS, msb, xsb, ysb, lsb]);
 
-  this._sendCmd(cmd, function (error) {
+  this.sendCmd(cmd, function (error) {
     var error = error ? new Error('Failed to load address: return status was not OK.') : null;
     callback(error);
   });
@@ -152,7 +152,7 @@ avrgirlStk500v2.prototype.loadPage = function (memType, data, callback) {
 
   cmd = Buffer.concat([cmd, data]);
 
-  this._sendCmd(cmd, function (error) {
+  this.sendCmd(cmd, function (error) {
     callback(error);
   });
 };
@@ -208,7 +208,7 @@ avrgirlStk500v2.prototype.enterProgrammingMode = function (callback) {
     enable[2], enable[3]
   ]);
 
-  this._sendCmd(cmd, function (error) {
+  this.sendCmd(cmd, function (error) {
     var error = error ? new Error('Failed to enter prog mode: programmer return status was not OK.') : null;
     callback(error);
   });
@@ -222,7 +222,7 @@ avrgirlStk500v2.prototype.exitProgrammingMode = function (callback) {
     C.CMD_LEAVE_PROGMODE_ISP, options.preDelay, options.postDelay
   ]);
 
-  this._sendCmd(cmd, function (error) {
+  this.sendCmd(cmd, function (error) {
     var error = error ? new Error('Failed to leave prog mode: programmer return status was not OK.') : null;
     callback(error);
   });
@@ -240,7 +240,7 @@ avrgirlStk500v2.prototype.eraseChip = function (callback) {
     erase.cmd[2], erase.cmd[3]
   ]);
 
-  this._sendCmd(cmd, function (error) {
+  this.sendCmd(cmd, function (error) {
     var error = error ? new Error('Failed to erase chip: programmer return status was not OK.') : null;
     callback(error);
   });
@@ -263,10 +263,10 @@ avrgirlStk500v2.prototype.readFlash = function (length, callback) {
     options.flash.read[0]
   ]);
 
-  this._write(cmd, function (error) {
+  this.write(cmd, function (error) {
     var error = error ? new Error('Failed to initiate read flash: programmer return status was not OK.') : null;
     if (error) { return callback(error, null); }
-    self._read(length + 3, function(error, data) {
+    self.read(length + 3, function(error, data) {
       var error = error ? new Error('Failed to read flash: programmer return status was not OK.') : null;
       callback(error, data);
     });
@@ -282,10 +282,10 @@ avrgirlStk500v2.prototype.readEeprom = function (length, callback) {
     options.eeprom.read[0]
   ]);
 
-  this._write(cmd, function (error) {
+  this.write(cmd, function (error) {
     var error = error ? new Error('Failed to initiate read eeprom: programmer return status was not OK.') : null;
     if (error) { return callback(error, null); }
-    self._read(length + 3, function(error, data) {
+    self.read(length + 3, function(error, data) {
       var error = error ? new Error('Failed to read eeprom: programmer return status was not OK.') : null;
       callback(error, data);
     });
@@ -308,9 +308,9 @@ avrgirlStk500v2.prototype.readChipSignature = function (callback) {
   var response = new Buffer(3);
 
   function getSigByte() {
-    self._write(cmd, function (error) {
+    self.write(cmd, function (error) {
       if (error) { callback(error); }
-      self._read(8, function(error, data) {
+      self.read(8, function(error, data) {
         if (error) { callback(error); }
         response[set] = data[2];
         set += 1;
@@ -348,9 +348,9 @@ avrgirlStk500v2.prototype.readFuses = function (callback) {
   var response = new Buffer(3);
 
   function getFuseByte() {
-    self._write(cmdf, function (error) {
+    self.write(cmdf, function (error) {
       if (error) { callback(error); }
-      self._read(4, function(error, data) {
+      self.read(4, function(error, data) {
         if (error) { callback(error); }
         response[set] = data[2];
         set += 1;
@@ -374,7 +374,7 @@ avrgirlStk500v2.prototype.setParameter = function (param, value, callback) {
     param, value
   ]);
 
-  this._sendCmd(cmd, function (error) {
+  this.sendCmd(cmd, function (error) {
     var error = error ? new Error('Failed to set parameter: programmer return status was not OK.') : null;
     callback(error);
   });
@@ -387,10 +387,10 @@ avrgirlStk500v2.prototype.getParameter = function (param, callback) {
     param
   ]);
 
-  this._write(cmd, function (error) {
+  this.write(cmd, function (error) {
     var error = error ? new Error('Failed to get parameter: programmer return status was not OK.') : null;
     if (error) { return callback(error, null); }
-    self._read(8, function(error, data) {
+    self.read(8, function(error, data) {
       var error = error ? new Error('Failed to get parameter: programmer return status was not OK.') : null;
       callback(error, data);
     });
