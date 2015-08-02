@@ -5,3 +5,14 @@ node_js:
   - "0.10"
   - "iojs"
   - "iojs-v1.0.4"
+
+before_install:
+- npm install pangyp -g
+- pangyp -v
+- npm update -g npm
+- npm --version
+
+script:
+- npm install --build-from-source --node-gyp=$(which pangyp)
+- "./node_modules/.bin/node-pre-gyp package"
+- npm install usb -g
