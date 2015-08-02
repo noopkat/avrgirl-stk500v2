@@ -61,6 +61,8 @@ test('[ AVRGIRL-STK500V2 ] method presence', function (t) {
     'eraseChip',
     'writeFlash',
     'writeEeprom',
+    'readFlash',
+    'readEeprom',
     'readChipSignature',
     'readFuses',
     'cmdSpiMulti',
