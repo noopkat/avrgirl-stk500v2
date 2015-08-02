@@ -56,6 +56,7 @@ test('[ AVRGIRL-STK500V2 ] method presence', function (t) {
     'loadAddress',
     'loadPage',
     'writeMem',
+    'readMem',
     'enterProgrammingMode',
     'exitProgrammingMode',
     'eraseChip',
@@ -224,7 +225,6 @@ test('[ AVRGIRL-STK500V2 ] ::verifyProgrammer', function (t) {
 });
 
 //writeMem
-//loadPage
 
 test('[ AVRGIRL-STK500V2 ] ::loadAddress', function (t) {
   var a = new avrgirl(FLoptions);
@@ -252,6 +252,33 @@ test('[ AVRGIRL-STK500V2 ] ::loadAddress', function (t) {
   });
 });
 
+test('[ AVRGIRL-STK500V2 ] ::loadPage', function (t) {
+  var a = new avrgirl(FLoptions);
+  var spy = sinon.spy(a, 'sendCmd');
+  var lMSB = 5 >> 8;
+  var lLSB = 5 & 0xFF;
+  var data = new Buffer([0xFF, 0xFF, 0xFF, 0xFF, 0xFF]);
+  var baddata = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF];
+  var buf1 = new Buffer([0x13, lMSB, lLSB, 0xC1, 6, 0x40, 0x4C, 0x20, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]);
+  var buf2 = new Buffer([0x15, lMSB, lLSB, 0xC1, 6, 0xC1, 0xC2, 0xA0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]);
+
+  t.plan(5);
+
+  a.loadPage('flash', data, function(error) {
+    t.ok(spy.calledWith(buf1), 'flash: called sendCmd with correct cmd');
+    t.error(error, 'flash: no error on callback');
+  });
+
+  a.loadPage('eeprom', data, function(error) {
+    t.ok(spy.calledWith(buf2), 'eeprom: called sendCmd with correct cmd');
+    t.error(error, 'eeprom: no error on callback');
+  });
+
+  a.loadPage('eeprom', baddata, function(error) {
+    t.ok(error, 'error when data arg is not a buffer');
+  });
+});
+
 test('[ AVRGIRL-STK500V2 ] ::enterProgrammingMode', function (t) {
   var a = new avrgirl(FLoptions);
   var spy = sinon.spy(a, 'sendCmd');
@@ -275,6 +302,82 @@ test('[ AVRGIRL-STK500V2 ] ::exitProgrammingMode', function (t) {
   a.exitProgrammingMode(function(error) {
     t.ok(spy.calledWith(buf), 'called sendCmd with correct cmd');
     t.error(error, 'no error on callback');
+  });
+});
+
+test('[ AVRGIRL-STK500V2 ] ::eraseChip', function (t) {
+  var a = new avrgirl(FLoptions);
+  var spy = sinon.spy(a, 'sendCmd');
+  var buf = new Buffer([0x12, 10, 0x01, 0xAC, 0x80, 0x00, 0x00]);
+
+  t.plan(2);
+
+  a.eraseChip(function(error) {
+    t.ok(spy.calledWith(buf), 'called sendCmd with correct cmd');
+    t.error(error, 'no error on callback');
+  });
+});
+
+test('[ AVRGIRL-STK500V2 ] ::readMem', function (t) {
+  var a = new avrgirl(FLoptions);
+  var spyw = sinon.spy(a, 'write');
+  var spyr = sinon.spy(a, 'read');
+  var lMSB = 0x04 >> 8;
+  var lLSB = 0x04;
+  var buf1 = new Buffer([0x14, lMSB, lLSB, 0x20]);
+  var buf2 = new Buffer([0x16, lMSB, lLSB, 0xA0]);
+
+  t.plan(10);
+
+  a.readMem('flash', 0x04, function(error, data) {
+    t.error(error, 'flash: no error on call');
+    t.ok(data, 'flash: passed data into callback');
+    t.equals(data.length, 7, 'flash: read returned 7 bytes of data');
+    t.ok(spyw.calledWith(buf1), 'flash: called write with correct cmd');
+    t.ok(spyr.calledWith(7), 'flash: called read with arg of 7');
+  });
+
+  console.log(' ');
+
+  a.readMem('eeprom', 0x04, function(error, data) {
+    t.error(error, 'eeprom: no error on call');
+    t.ok(data, 'eeprom: passed data into callback');
+    t.equals(data.length, 7, 'eeprom: read returned 7 bytes of data');
+    t.ok(spyw.calledWith(buf2), 'eeprom: called write with correct cmd');
+    t.ok(spyr.calledWith(7), 'eeprom: called read with arg of 7');
+  });
+});
+
+// readChipSignature
+
+// readFuses
+
+test('[ AVRGIRL-STK500V2 ] ::setParameter', function (t) {
+  var a = new avrgirl(FLoptions);
+  var spy = sinon.spy(a, 'sendCmd');
+  var buf = new Buffer([0x02, 0x98, 0x01]);
+
+  t.plan(2);
+
+  a.setParameter(0x98, 0x01, function(error) {
+    t.ok(spy.calledWith(buf), 'called sendCmd with correct cmd');
+    t.error(error, 'no error on callback');
+  });
+});
+
+test('[ AVRGIRL-STK500V2 ] ::getParameter', function (t) {
+  var a = new avrgirl(FLoptions);
+  var spyw = sinon.spy(a, 'write');
+  var spyr = sinon.spy(a, 'read');
+  var buf = new Buffer([0x03, 0x98]);
+
+  t.plan(4);
+
+  a.getParameter(0x98, function(error, data) {
+    t.ok(spyw.calledWith(buf), 'called write with correct cmd');
+    t.ok(spyr.calledWith(8), 'called read with correct length');
+    t.error(error, 'no error on callback');
+    t.ok(data, 'got paramater data back');
   });
 });
 

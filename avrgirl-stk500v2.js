@@ -157,6 +157,10 @@ avrgirlStk500v2.prototype.loadAddress = function (memType, address, callback) {
 };
 
 avrgirlStk500v2.prototype.loadPage = function (memType, data, callback) {
+  if (!Buffer.isBuffer(data)) {
+    return callback(new Error('Failed to write page: data was not Buffer'));
+  }
+
   var lMSB = data.length >> 8;
   var lLSB = data.length & 0xFF;
   var mem = this.options.chip[memType];
@@ -274,39 +278,21 @@ avrgirlStk500v2.prototype.writeEeprom = function (hex, callback) {
  // optional convenience method
 };
 
-avrgirlStk500v2.prototype.readFlash = function (length, callback) {
+avrgirlStk500v2.prototype.readMem = function (memType, length, callback) {
   var self = this;
   var options = this.options.chip;
-  var cmd = new Buffer([
-    C.CMD_READ_FLASH_ISP,
+  var cmd = memType === 'flash' ? C.CMD_READ_FLASH_ISP : C.CMD_READ_EEPROM_ISP
+  var buf = new Buffer([
+    cmd,
     length >> 8, length,
-    options.flash.read[0]
+    options[memType].read[0]
   ]);
 
-  this.write(cmd, function (error) {
-    var error = error ? new Error('Failed to initiate read flash: programmer return status was not OK.') : null;
+  this.write(buf, function (error) {
+    var error = error ? new Error('Failed to initiate read memory: programmer return status was not OK.') : null;
     if (error) { return callback(error, null); }
     self.read(length + 3, function(error, data) {
-      var error = error ? new Error('Failed to read flash: programmer return status was not OK.') : null;
-      callback(error, data);
-    });
-  });
-};
-
-avrgirlStk500v2.prototype.readEeprom = function (length, callback) {
-  var self = this;
-  var options = this.options.chip;
-  var cmd = new Buffer([
-    C.CMD_READ_EEPROM_ISP,
-    length >> 8, length,
-    options.eeprom.read[0]
-  ]);
-
-  this.write(cmd, function (error) {
-    var error = error ? new Error('Failed to initiate read eeprom: programmer return status was not OK.') : null;
-    if (error) { return callback(error, null); }
-    self.read(length + 3, function(error, data) {
-      var error = error ? new Error('Failed to read eeprom: programmer return status was not OK.') : null;
+      var error = error ? new Error('Failed to read memory: programmer return status was not OK.') : null;
       callback(error, data);
     });
   });
@@ -390,7 +376,7 @@ avrgirlStk500v2.prototype.readFuses = function (callback) {
 
 avrgirlStk500v2.prototype.setParameter = function (param, value, callback) {
   var cmd = new Buffer([
-    C.CMD_GET_PARAMETER,
+    C.CMD_SET_PARAMETER,
     param, value
   ]);
 
