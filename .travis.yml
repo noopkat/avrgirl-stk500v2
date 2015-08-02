@@ -9,10 +9,11 @@ node_js:
 before_install:
 - npm install pangyp -g
 - pangyp -v
+- npm install -g node-gyp
+- npm install -g node-pre-gyp
 - npm update -g npm
 - npm --version
 
 script:
 - npm install --build-from-source --node-gyp=$(which pangyp)
-- "./node_modules/.bin/node-pre-gyp package"
 - npm install usb -g
