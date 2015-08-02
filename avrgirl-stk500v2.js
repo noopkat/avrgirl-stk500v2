@@ -85,9 +85,11 @@ avrgirlStk500v2.prototype.write = function (buffer, callback) {
 };
 
 avrgirlStk500v2.prototype.read = function (length, callback) {
+  var self = this;
   if (typeof length !== 'number') { return callback(new Error('Failed to read: length must be a number.')) }
   this.device.read(length, function (error, data) {
-    callback(error, data);
+    var buffer = (self.options.frameless) ? data : data.slice(6);
+    callback(error, buffer);
   });
 };
 
