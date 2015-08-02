@@ -18,6 +18,9 @@ var FLoptions = {
   frameless: true
 }
 
+// run c tests
+require('./c.spec');
+
 test('[ AVRGIRL-STK500V2 ] initialise', function (t) {
   var a = new avrgirl(FLoptions);
   t.equal(typeof a, 'object', 'new is object');
