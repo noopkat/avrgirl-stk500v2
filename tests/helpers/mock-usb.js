@@ -29,7 +29,7 @@ usb.findByIds = function (vid, pid) {
       ]
     });
   };
-  this.close = function() {
+  device.close = function() {
     device.interfaces = [];
   };
   return device;

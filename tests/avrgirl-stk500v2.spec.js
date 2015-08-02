@@ -240,12 +240,12 @@ test('[ AVRGIRL-STK500V2 ] ::loadAddress', function (t) {
   t.plan(4);
 
   a.loadAddress('flash', 0, function(error) {
-    t.ok(spy.calledWith(buf1), 'called sendCmd with correct cmd');
+    t.ok(spy.calledWith(buf1), 'flash: called sendCmd with correct cmd');
     t.error(error, 'no error on callback');
   });
 
   a.loadAddress('eeprom', 0, function(error) {
-    t.ok(spy.calledWith(buf2), 'called sendCmd with correct cmd');
+    t.ok(spy.calledWith(buf2), 'flash: called sendCmd with correct cmd');
     t.error(error, 'no error on callback');
   });
 });
