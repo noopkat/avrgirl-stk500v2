@@ -4,7 +4,8 @@
   "description": "avrgirl flavoured stk500v2 protocol",
   "main": "avrgirl-stk500v2.js",
   "scripts": {
-    "test": "tape ./tests/*.spec.js | tap-spec"
+    "test": "tape ./tests/*.spec.js | tap-spec",
+    "cover": "istanbul cover ./tests/avrgirl-stk500v2.spec.js && istanbul-coveralls"
   },
   "repository": {
     "type": "git",

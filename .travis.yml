@@ -6,3 +6,9 @@ node_js:
   - "iojs"
   - "iojs-v1.0.4"
 
+before_script:
+- npm install -g istanbul
+- npm install -g istanbul-coveralls
+
+after_success:
+- npm run cover
