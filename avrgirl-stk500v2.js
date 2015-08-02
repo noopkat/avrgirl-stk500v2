@@ -97,11 +97,11 @@ avrgirlStk500v2.prototype.getSignature = function (callback) {
   });
 };
 
-avrgirlStk500v2.prototype.verifySignature = function (data, callback) {
+avrgirlStk500v2.prototype.verifySignature = function (sig, data, callback) {
   var error = null;
   if (data[1] === C.STATUS_CMD_OK) {
-    var signature = data.slice(2);
-    if (signature.toString().trim() !== 'AVRISP_MK2') {
+    var signature = data.slice(3);
+    if (signature.compare(sig)) {
       error = new Error('Failed to verify: programmer signature does not match.');
     }
   } else {
@@ -110,10 +110,11 @@ avrgirlStk500v2.prototype.verifySignature = function (data, callback) {
   callback(error);
 };
 
-avrgirlStk500v2.prototype.verifyProgrammer = function (callback) {
+avrgirlStk500v2.prototype.verifyProgrammer = function (sig, callback) {
   var self = this;
+
   this.getSignature(function (error, data) {
-    self.verifySignature(data, function(error) {
+    self.verifySignature(sig, data, function(error) {
       callback(error);
     });
   });
