@@ -224,8 +224,6 @@ test('[ AVRGIRL-STK500V2 ] ::verifyProgrammer', function (t) {
   });
 });
 
-//writeMem
-
 test('[ AVRGIRL-STK500V2 ] ::loadAddress', function (t) {
   var a = new avrgirl(FLoptions);
   var spy = sinon.spy(a, 'sendCmd');
@@ -348,10 +346,6 @@ test('[ AVRGIRL-STK500V2 ] ::readMem', function (t) {
   });
 });
 
-// readChipSignature
-
-// readFuses
-
 test('[ AVRGIRL-STK500V2 ] ::setParameter', function (t) {
   var a = new avrgirl(FLoptions);
   var spy = sinon.spy(a, 'sendCmd');
@@ -380,4 +374,9 @@ test('[ AVRGIRL-STK500V2 ] ::getParameter', function (t) {
     t.ok(data, 'got paramater data back');
   });
 });
+
+// TODO:
+// readChipSignature
+// readFuses
+// writeMem
 
