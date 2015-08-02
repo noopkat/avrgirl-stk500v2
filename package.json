@@ -4,7 +4,7 @@
   "description": "avrgirl flavoured stk500v2 protocol",
   "main": "avrgirl-stk500v2.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tape ./tests/*.spec.js | tap-spec"
   },
   "repository": {
     "type": "git",
@@ -27,6 +27,8 @@
     "async": "^1.4.0"
   },
   "devDependencies": {
+    "proxyquire": "^1.6.0",
+    "sinon": "^1.15.4",
     "tap-spec": "^4.0.2",
     "tape": "^4.0.1"
   }
