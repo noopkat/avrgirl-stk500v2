@@ -24,6 +24,7 @@ require('./c.spec');
 test('[ AVRGIRL-STK500V2 ] initialise', function (t) {
   var a = new avrgirl(FLoptions);
   t.equal(typeof a, 'object', 'new is object');
+  t.equal(Object.keys(a.options).length, 4, 'options has 4 props');
   t.end();
 });
 
@@ -31,8 +32,6 @@ test('[ AVRGIRL-STK500V2 ] device ready', function (t) {
   var a = new avrgirl(FLoptions);
   a.on('ready', function() {
     t.ok(typeof a.device === 'object', 'device created');
-    // move this to libusb-comms.spec
-    // t.ok(a.device.interfaces.length, 'interfaces set up');
     t.pass('emitted "ready"');
     t.end();
   });
