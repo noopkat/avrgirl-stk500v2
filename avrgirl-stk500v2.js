@@ -94,7 +94,7 @@ avrgirlStk500v2.prototype.read = function (length, callback) {
 avrgirlStk500v2.prototype.sendCmd = function(cmd, callback) {
   var self = this;
   this.write(cmd, function (error) {
-    if (error) { callback(error); }
+    if (error) { return callback(error); }
     self.read(2, function (error, data) {
       if (!error && data.length > 0 && data[1] !== C.STATUS_CMD_OK) {
         var error = new Error('Return status was not OK. Received instead: ' + data.toString('hex'));
@@ -120,8 +120,8 @@ avrgirlStk500v2.prototype.getSignature = function (callback) {
 avrgirlStk500v2.prototype.verifySignature = function (sig, data, callback) {
   var error = null;
   if (data[1] === C.STATUS_CMD_OK) {
-    var signature = data.slice(3);
-    if (signature.equals(sig)) {
+    var signature = data.slice(3, 3 + sig.length);
+    if (!signature.equals(sig)) {
       error = new Error('Failed to verify: programmer signature does not match.');
     }
   } else {
