@@ -6,15 +6,13 @@ var async = require('async');
 var libusb = require('./lib/libusb-comms.js');
 
 function avrgirlStk500v2(options) {
-  var self = this;
-  this.options = options;
+  this.options = {
+    comm: options.comm || null,
+    chip: options.chip || null,
+    debug: options.debug || false
+  };
 
-  /* options sig
-  {
-    comm: usb | serialport,
-    chip: {}
-  }
-  */
+  this.debug = this.options.debug ? console.log : function() {};
 
   // if (this.options.comm.deviceDescriptor && typeof this.options.comm.deviceDescriptor === 'object') {
   //     this.commType = 'libusb';
@@ -30,7 +28,7 @@ function avrgirlStk500v2(options) {
 util.inherits(avrgirlStk500v2, EventEmitter);
 
 avrgirlStk500v2.prototype._setupComms = function() {
-  console.log('setting up comms')
+  this.debug('setting up communication interface');
   var self = this;
   // libusb
   this.open();
