@@ -324,7 +324,7 @@ avrgirlStk500v2.prototype.readMem = function (memType, length, callback) {
   });
 };
 
-avrgirlStk500v2.prototype.readChipSignature = function (callback) {
+avrgirlStk500v2.prototype.getChipSignature = function (callback) {
   var self = this;
   var options = this.options.chip;
   var signature = options.signature;

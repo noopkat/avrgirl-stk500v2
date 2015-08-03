@@ -63,7 +63,7 @@ test('[ AVRGIRL-STK500V2 ] method presence', function (t) {
     'writeEeprom',
     'readFlash',
     'readEeprom',
-    'readChipSignature',
+    'getChipSignature',
     'readFuses',
     'cmdSpiMulti',
     'setParameter',
@@ -246,7 +246,7 @@ test('[ AVRGIRL-STK500V2 ] ::loadAddress', function (t) {
   });
 
   a.loadAddress('eeprom', 0, function(error) {
-    t.ok(spy.calledWith(buf2), 'flash: called sendCmd with correct cmd');
+    t.ok(spy.calledWith(buf2), 'eeprom: called sendCmd with correct cmd');
     t.error(error, 'no error on callback');
   });
 });
@@ -459,6 +459,34 @@ test('[ AVRGIRL-STK500V2 ] ::readFlash', function (t) {
     t.ok(spy.calledWith('flash', length), 'called readMem with correct length arg');
     t.equals(data.length, length + 3, 'data returned is correct length');
     t.error(error, 'no error on callback');
+  });
+});
+
+// this is very shallow - the async whilst functions should be broken out into a halper object
+// so that they are properly unit testable.
+test('[ AVRGIRL-STK500V2 ] ::writeMem', function (t) {
+  var a = new avrgirl(FLoptions);
+  var tinyfdata = new Buffer(50);
+  var largefdata = new Buffer(500);
+  var tinyedata = new Buffer(3);
+  var largeedata = new Buffer(50);
+
+  t.plan(4);
+
+  a.writeMem('flash', tinyfdata, function(error) {
+    t.error(error, 'flash tiny: no error on callback');
+  });
+
+  a.writeMem('flash', largefdata, function(error) {
+    t.error(error, 'flash large: no error on callback');
+  });
+
+  a.writeMem('eeprom', tinyedata, function(error) {
+    t.error(error, 'eeprom tiny: no error on callback');
+  });
+
+  a.writeMem('eeprom', largeedata, function(error) {
+    t.error(error, 'eeprom large: no error on callback');
   });
 });
 
