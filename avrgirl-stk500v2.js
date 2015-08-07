@@ -362,6 +362,7 @@ avrgirlStk500v2.prototype.readFuses = function (callback) {
   var fuses = chip.fuses;
   var set = 0;
   var reads = Object.keys(fuses.read);
+  var fusesLen = reads.length;
   var readLen = (this.options.frameless) ? 4 : 10;
   var fusePos = (this.options.frameless) ? 2 : 7;
 
@@ -370,7 +371,9 @@ avrgirlStk500v2.prototype.readFuses = function (callback) {
     fuses.startAddress
   ]);
 
-  var cmdf = Buffer.concat([cmd, new Buffer(fuses.read[reads[0]])], 6);
+  var cmdLen = cmd.length;
+
+  var cmdf = Buffer.concat([cmd, new Buffer(fuses.read[reads[0]])], cmdLen + fuses.read[reads[0]].length);
   var response = {};
 
   function getFuseByte() {
@@ -380,8 +383,8 @@ avrgirlStk500v2.prototype.readFuses = function (callback) {
         if (error) { callback(error); }
         response[reads[set]] = new Buffer([data[fusePos]]);
         set += 1;
-        if (set < 3) {
-          cmdf = Buffer.concat([cmd, new Buffer(fuses.read[reads[set]])], 6);
+        if (set < fusesLen) {
+          cmdf = Buffer.concat([cmd, new Buffer(fuses.read[reads[set]])], cmdLen + fuses.read[reads[set]].length);
           getFuseByte();
         } else {
           callback(null, response);
