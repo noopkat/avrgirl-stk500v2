@@ -203,27 +203,6 @@ test('[ AVRGIRL-STK500V2 ] ::verifySignature', function (t) {
   });
 });
 
-test('[ AVRGIRL-STK500V2 ] ::verifyProgrammer', function (t) {
-  var a = new avrgirl(FLoptions);
-  var sig1 = new Buffer([0xff, 0xff, 0xff]);
-  var sig2 = new Buffer([0x00, 0x00, 0x00]);
-
-  t.plan(2);
-
-  a.verifyProgrammer(sig1, function(error) {
-    t.error(error, 'no error on identical signatures');
-  });
-
-  a.verifyProgrammer(sig2, function(error) {
-    var msg = 'returns error on non matching signature';
-    if (!error) {
-      t.fail(msg);
-    } else {
-      t.pass(msg)
-    }
-  });
-});
-
 test('[ AVRGIRL-STK500V2 ] ::loadAddress', function (t) {
   var a = new avrgirl(FLoptions);
   var spy = sinon.spy(a, 'sendCmd');
