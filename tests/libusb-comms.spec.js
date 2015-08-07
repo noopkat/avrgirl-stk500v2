@@ -2,6 +2,7 @@
 var test = require('tape');
 // test helpers
 var sinon = require('sinon');
+var bufferEqual = require('buffer-equal');
 var usb = require('mock-usb');
 
 // module to test
@@ -58,7 +59,8 @@ test('[ LIBUSB-COMMS ] ::write', function (t) {
     var spy = sinon.spy(b.conn.endpointOut, 'transfer');
     b.write(buf, function(error){
       t.error(error, 'no error');
-      t.ok(spy.calledWith(buf), 'called transfer method on correct endpoint with correct buffer arg');
+      var cond = (spy.calledOnce && spy.args[0][0] && bufferEqual(spy.args[0][0], buf));
+      t.ok(cond, 'called transfer method on correct endpoint with correct buffer arg');
     });
   });
 });

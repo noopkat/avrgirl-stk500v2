@@ -3,6 +3,7 @@ var test = require('tape');
 // test helpers
 var sinon = require('sinon');
 var proxyquire = require('proxyquire');
+var bufferEqual = require('buffer-equal');
 var chip = require('./helpers/mock-chip');
 var libusbmock = require('./helpers/mock-libusb-comms');
 var usbmock = require('mock-usb');
@@ -17,6 +18,10 @@ var FLoptions = {
   debug: false,
   frameless: true
 }
+
+function testBuffer(spy, call, arg, buffer) {
+  return (spy.called && spy.args[call][arg] && bufferEqual(spy.args[call][arg], buffer));
+};
 
 // run c tests
 require('./c.spec');
@@ -84,7 +89,7 @@ test('[ AVRGIRL-STK500V2 ] ::frame', function (t) {
 
   t.ok(Buffer.isBuffer(buffer), 'returned result is a buffer');
   t.equal(framed.length, 10, 'returned result length is correct');
-  t.ok(framedExample.equals(framed), 'returned result equals expected value');
+  t.ok(bufferEqual(framedExample, framed), 'returned result equals expected value');
   t.end();
 });
 
@@ -117,7 +122,7 @@ test('[ AVRGIRL-STK500V2 ] ::read', function (t) {
   a.read(6, function(error, data) {
     t.ok(Buffer.isBuffer(data), 'result is in buffer format');
     t.equal(data.length, 6, 'read result length is expected');
-    t.ok(buffer.equals(data), 'buffer read is expected value');
+    t.ok(bufferEqual(buffer, data), 'buffer read is expected value');
   });
 
   a.read('string', function(error, data) {
@@ -156,7 +161,7 @@ test('[ AVRGIRL-STK500V2 ] ::getSignature', function (t) {
   a.getSignature(function(error, data) {
     t.error(error, 'no error on call');
     t.ok(data, 'passed data into callback');
-    t.ok(spyw.calledWith(buf), 'called write with correct cmd');
+    t.ok(testBuffer(spyw, 0, 0, buf), 'called write with correct cmd');
     t.ok(spyr.calledWith(17), 'called read with arg of 17');
   });
 });
@@ -194,12 +199,12 @@ test('[ AVRGIRL-STK500V2 ] ::loadAddress', function (t) {
   t.plan(4);
 
   a.loadAddress('flash', 0, function(error) {
-    t.ok(spy.calledWith(buf1), 'flash: called sendCmd with correct cmd');
+    t.ok(testBuffer(spy, 0, 0, buf1), 'flash: called sendCmd with correct cmd');
     t.error(error, 'no error on callback');
   });
 
   a.loadAddress('eeprom', 0, function(error) {
-    t.ok(spy.calledWith(buf2), 'eeprom: called sendCmd with correct cmd');
+    t.ok(testBuffer(spy, 1, 0, buf2), 'eeprom: called sendCmd with correct cmd');
     t.error(error, 'no error on callback');
   });
 });
@@ -217,12 +222,12 @@ test('[ AVRGIRL-STK500V2 ] ::loadPage', function (t) {
   t.plan(5);
 
   a.loadPage('flash', data, function(error) {
-    t.ok(spy.calledWith(buf1), 'flash: called sendCmd with correct cmd');
+    t.ok(testBuffer(spy, 0, 0, buf1), 'flash: called sendCmd with correct cmd');
     t.error(error, 'flash: no error on callback');
   });
 
   a.loadPage('eeprom', data, function(error) {
-    t.ok(spy.calledWith(buf2), 'eeprom: called sendCmd with correct cmd');
+    t.ok(testBuffer(spy, 1, 0, buf2), 'eeprom: called sendCmd with correct cmd');
     t.error(error, 'eeprom: no error on callback');
   });
 
@@ -239,7 +244,7 @@ test('[ AVRGIRL-STK500V2 ] ::enterProgrammingMode', function (t) {
   t.plan(2);
 
   a.enterProgrammingMode(function(error) {
-    t.ok(spy.calledWith(buf), 'called sendCmd with correct cmd');
+    t.ok(testBuffer(spy, 0, 0, buf), 'called sendCmd with correct cmd');
     t.error(error, 'no error on callback');
   });
 });
@@ -252,7 +257,7 @@ test('[ AVRGIRL-STK500V2 ] ::exitProgrammingMode', function (t) {
   t.plan(2);
 
   a.exitProgrammingMode(function(error) {
-    t.ok(spy.calledWith(buf), 'called sendCmd with correct cmd');
+    t.ok(testBuffer(spy, 0, 0, buf), 'called sendCmd with correct cmd');
     t.error(error, 'no error on callback');
   });
 });
@@ -265,7 +270,7 @@ test('[ AVRGIRL-STK500V2 ] ::eraseChip', function (t) {
   t.plan(2);
 
   a.eraseChip(function(error) {
-    t.ok(spy.calledWith(buf), 'called sendCmd with correct cmd');
+    t.ok(testBuffer(spy, 0, 0, buf), 'called sendCmd with correct cmd');
     t.error(error, 'no error on callback');
   });
 });
@@ -285,7 +290,7 @@ test('[ AVRGIRL-STK500V2 ] ::readMem', function (t) {
     t.error(error, 'flash: no error on call');
     t.ok(data, 'flash: passed data into callback');
     t.equals(data.length, 7, 'flash: read returned 7 bytes of data');
-    t.ok(spyw.calledWith(buf1), 'flash: called write with correct cmd');
+    t.ok(testBuffer(spyw, 0, 0, buf1), 'flash: called write with correct cmd');
     t.ok(spyr.calledWith(7), 'flash: called read with arg of 7');
   });
 
@@ -295,7 +300,7 @@ test('[ AVRGIRL-STK500V2 ] ::readMem', function (t) {
     t.error(error, 'eeprom: no error on call');
     t.ok(data, 'eeprom: passed data into callback');
     t.equals(data.length, 7, 'eeprom: read returned 7 bytes of data');
-    t.ok(spyw.calledWith(buf2), 'eeprom: called write with correct cmd');
+    t.ok(testBuffer(spyw, 1, 0, buf2), 'eeprom: called write with correct cmd');
     t.ok(spyr.calledWith(7), 'eeprom: called read with arg of 7');
   });
 });
@@ -308,7 +313,7 @@ test('[ AVRGIRL-STK500V2 ] ::setParameter', function (t) {
   t.plan(2);
 
   a.setParameter(0x98, 0x01, function(error) {
-    t.ok(spy.calledWith(buf), 'called sendCmd with correct cmd');
+    t.ok(testBuffer(spy, 0, 0, buf), 'called sendCmd with correct cmd');
     t.error(error, 'no error on callback');
   });
 });
@@ -322,7 +327,7 @@ test('[ AVRGIRL-STK500V2 ] ::getParameter', function (t) {
   t.plan(4);
 
   a.getParameter(0x98, function(error, data) {
-    t.ok(spyw.calledWith(buf), 'called write with correct cmd');
+    t.ok(testBuffer(spyw, 0, 0, buf), 'called write with correct cmd');
     t.ok(spyr.calledWith(8), 'called read with correct length');
     t.error(error, 'no error on callback');
     t.ok(data, 'got paramater data back');
@@ -334,7 +339,6 @@ test('[ AVRGIRL-STK500V2 ] ::readFuses', function (t) {
   var a = new avrgirl(FLoptions);
   var spyw = sinon.spy(a, 'write');
   var spyr = sinon.spy(a, 'read');
-  var buf = new Buffer([0x18, 0x00]);
   var fuses = 3;
 
   t.plan(4);
@@ -354,15 +358,17 @@ test('[ AVRGIRL-STK500V2 ] ::writeFlash', function (t) {
   var tinydata = new Buffer(50);
   var largedata = new Buffer(500);
 
-  t.plan(4);
+  t.plan(6);
 
   a.writeFlash(tinydata, function(error) {
-    t.ok(spy.calledWith('flash', tinydata), 'one page: called writeMem with correct args');
+    t.ok(spy.calledWith('flash'), 'one page: called writeMem with correct memtype');
+    t.ok(testBuffer(spy, 0, 1, tinydata), 'one page: called writeMem with correct buffer');
     t.error(error, 'no error on callback');
   });
   console.log(' ');
   a.writeFlash(largedata, function(error) {
-    t.ok(spy.calledWith('flash', largedata), 'multiple pages: called writeMem with correct args');
+    t.ok(spy.calledWith('flash'), 'multiple pages: called writeMem with correct memtype');
+    t.ok(testBuffer(spy, 1, 1, largedata), 'multiple pages: called writeMem with correct buffer');
     t.error(error, 'no error on callback');
   });
 });
@@ -374,15 +380,17 @@ test('[ AVRGIRL-STK500V2 ] ::writeEeprom', function (t) {
   var tinydata = new Buffer(3);
   var largedata = new Buffer(20);
 
-  t.plan(4);
+  t.plan(6);
 
   a.writeEeprom(tinydata, function(error) {
-    t.ok(spy.calledWith('eeprom', tinydata), 'one page: called writeMem with correct args');
+    t.ok(spy.calledWith('eeprom'), 'one page: called writeMem with correct memtype');
+    t.ok(testBuffer(spy, 0, 1, tinydata), 'one page: called writeMem with correct buffer');
     t.error(error, 'no error on callback');
   });
   console.log(' ');
   a.writeEeprom(largedata, function(error) {
-    t.ok(spy.calledWith('eeprom', largedata), 'multiple pages: called writeMem with correct args');
+    t.ok(spy.calledWith('eeprom'), 'one page: called writeMem with correct memtype');
+    t.ok(testBuffer(spy, 1, 1, largedata), 'one page: called writeMem with correct buffer');
     t.error(error, 'no error on callback');
   });
 });

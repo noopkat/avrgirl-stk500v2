@@ -2,6 +2,7 @@ var C = require('./lib/c');
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 var async = require('async');
+var bufferEqual = require('buffer-equal');
 var libusb = require('./lib/libusb-comms');
 
 function avrgirlStk500v2(options) {
@@ -125,7 +126,7 @@ avrgirlStk500v2.prototype.getSignature = function (callback) {
 
 avrgirlStk500v2.prototype.verifySignature = function (sig, data, callback) {
   var error = null;
-  if (!data.equals(sig)) {
+  if (!bufferEqual(data, sig)) {
     error = new Error('Failed to verify: signature does not match.');
   }
   callback(error);
