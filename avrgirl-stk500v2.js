@@ -113,20 +113,20 @@ avrgirlStk500v2.prototype.getSignature = function (callback) {
   this.write(cmd, function (error) {
     if (error) { callback(error); }
     self.read(length, function (error, data) {
-      callback(error, data);
+      if (data[1] !== C.STATUS_CMD_OK) {
+        error = new Error('Failed to verify: programmer return status was not OK.');
+      }
+      // support framing here
+      var signature = data.slice(3);
+      callback(error, signature);
     });
   });
 };
 
 avrgirlStk500v2.prototype.verifySignature = function (sig, data, callback) {
   var error = null;
-  if (data[1] === C.STATUS_CMD_OK) {
-    var signature = data.slice(3, 3 + sig.length);
-    if (!signature.equals(sig)) {
-      error = new Error('Failed to verify: signature does not match.');
-    }
-  } else {
-    error = new Error('Failed to verify: programmer return status was not OK.');
+  if (!data.equals(sig)) {
+    error = new Error('Failed to verify: signature does not match.');
   }
   callback(error);
 };
