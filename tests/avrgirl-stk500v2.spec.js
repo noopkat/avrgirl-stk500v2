@@ -104,12 +104,7 @@ test('[ AVRGIRL-STK500V2 ] ::write', function (t) {
   });
 
   a.write('string', function(error) {
-    var msg = 'has error on write string callback';
-    if (!error) {
-      t.fail(msg);
-    } else {
-      t.pass(msg)
-    }
+    t.ok(error, 'has error on write string callback');
   });
 });
 
@@ -126,12 +121,7 @@ test('[ AVRGIRL-STK500V2 ] ::read', function (t) {
   });
 
   a.read('string', function(error, data) {
-    var msg = 'returns error on read when passing string as length';
-    if (!error) {
-      t.fail(msg);
-    } else {
-      t.pass(msg)
-    }
+    t.ok(error, 'returns error on read when passing string as length');
   });
 });
 
@@ -147,21 +137,11 @@ test('[ AVRGIRL-STK500V2 ] ::sendCmd', function (t) {
   });
 
   a.sendCmd(6, function(error) {
-    var msg = 'returns error on send number as command';
-    if (!error) {
-      t.fail(msg);
-    } else {
-      t.pass(msg)
-    }
+    t.ok(error, 'returns error on send number as command');
   });
 
   a.sendCmd('hello', function(error) {
-    var msg = 'returns error on send string as command';
-    if (!error) {
-      t.fail(msg);
-    } else {
-      t.pass(msg)
-    }
+    t.ok(error, 'returns error on send string as command');
   });
 });
 
@@ -183,7 +163,7 @@ test('[ AVRGIRL-STK500V2 ] ::getSignature', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::verifySignature', function (t) {
   var a = new avrgirl(FLoptions);
-  var data = new Buffer([0x00, 0x00, 0x00, 0x01, 0x02, 0x03]);
+  var data = new Buffer([0x01, 0x02, 0x03]);
   var sig2 = new Buffer([0x01, 0x02, 0x03]);
   var sig3 = new Buffer([0xf3, 0xf4, 0xf5]);
 
@@ -194,12 +174,7 @@ test('[ AVRGIRL-STK500V2 ] ::verifySignature', function (t) {
   });
 
   a.verifySignature(sig3, data, function(error) {
-    var msg = 'returns error on non matching signature';
-    if (!error) {
-      t.fail(msg);
-    } else {
-      t.pass(msg)
-    }
+    t.pass(error, 'returns error on non matching signature');
   });
 });
 
