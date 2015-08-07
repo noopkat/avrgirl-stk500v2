@@ -397,6 +397,30 @@ avrgirlStk500v2.prototype.readFuses = function (callback) {
 
 };
 
+avrgirlStk500v2.prototype.readFuse = function (fuseType, callback) {
+  var self = this;
+  var chip = this.options.chip;
+  var fuse = chip.fuses.read[fuseType];
+  var readLen = (this.options.frameless) ? 4 : 10;
+  var fusePos = (this.options.frameless) ? 2 : 7;
+
+  var cmd = new Buffer([
+    C.CMD_READ_FUSE_ISP,
+    chip.fuses.startAddress
+  ]);
+
+  var cmdf = Buffer.concat([cmd, new Buffer(fuse)], cmd.length + fuse.length);
+
+  self.write(cmdf, function (error) {
+    if (error) { callback(error); }
+    self.read(readLen, function(error, data) {
+      if (error) { callback(error); }
+      response = new Buffer([data[fusePos]]);
+      callback(null, response);
+    });
+  });
+};
+
 avrgirlStk500v2.prototype.setParameter = function (param, value, callback) {
   var cmd = new Buffer([
     C.CMD_SET_PARAMETER,
