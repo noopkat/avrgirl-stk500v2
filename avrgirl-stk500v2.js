@@ -398,6 +398,10 @@ avrgirlStk500v2.prototype.readFuses = function (callback) {
 };
 
 avrgirlStk500v2.prototype.readFuse = function (fuseType, callback) {
+  if ((typeof fuseType).toLowerCase() !== 'string') {
+    return callback(new Error('Failed to read fuse: fuse type should be a string'));
+  }
+
   var self = this;
   var chip = this.options.chip;
   var fuse = chip.fuses.read[fuseType];

@@ -352,6 +352,26 @@ test('[ AVRGIRL-STK500V2 ] ::readFuses', function (t) {
   });
 });
 
+test('[ AVRGIRL-STK500V2 ] ::readFuse', function (t) {
+  var a = new avrgirl(FLoptions);
+  var spyw = sinon.spy(a, 'write');
+  var spyr = sinon.spy(a, 'read');
+
+  t.plan(6);
+
+  a.readFuse('high', function(error, data) {
+    t.ok(spyw.calledOnce, 'called write once');
+    t.ok(spyr.calledOnce, 'called read once');
+    t.error(error, 'no error on callback');
+    t.ok(Buffer.isBuffer(data), 'got parameter data back, type is buffer');
+    t.equals(data.length, 1, 'got parameter data back, correct length');
+  });
+
+  a.readFuse(8, function(error, data) {
+    t.ok(error, 'error on callback when passing non string fuseType');
+  });
+});
+
 // TODO: test for data length being too large, return error
 test('[ AVRGIRL-STK500V2 ] ::writeFlash', function (t) {
   var a = new avrgirl(FLoptions);
