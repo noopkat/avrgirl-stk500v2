@@ -360,41 +360,20 @@ avrgirlStk500v2.prototype.readFuses = function (callback) {
   var self = this;
   var chip = this.options.chip;
   var fuses = chip.fuses;
-  var set = 0;
   var reads = Object.keys(fuses.read);
-  var fusesLen = reads.length;
-  var readLen = (this.options.frameless) ? 4 : 10;
   var fusePos = (this.options.frameless) ? 2 : 7;
-
-  var cmd = new Buffer([
-    C.CMD_READ_FUSE_ISP,
-    fuses.startAddress
-  ]);
-
-  var cmdLen = cmd.length;
-
-  var cmdf = Buffer.concat([cmd, new Buffer(fuses.read[reads[0]])], cmdLen + fuses.read[reads[0]].length);
   var response = {};
 
-  function getFuseByte() {
-    self.write(cmdf, function (error) {
-      if (error) { callback(error); }
-      self.read(readLen, function(error, data) {
-        if (error) { callback(error); }
-        response[reads[set]] = new Buffer([data[fusePos]]);
-        set += 1;
-        if (set < fusesLen) {
-          cmdf = Buffer.concat([cmd, new Buffer(fuses.read[reads[set]])], cmdLen + fuses.read[reads[set]].length);
-          getFuseByte();
-        } else {
-          callback(null, response);
-        }
-      });
+  async.eachSeries(reads, function iterator(item, cb) {
+    console.log('reading ' + item);
+    self.readFuse(item, function(error, data) {
+      if (error) { return callback(new Error(error), null); }
+      response[item] = data;
+      cb();
     });
-  };
-
-  getFuseByte();
-
+  }, function done() {
+    callback(null, response);
+  });
 };
 
 avrgirlStk500v2.prototype.readFuse = function (fuseType, callback) {

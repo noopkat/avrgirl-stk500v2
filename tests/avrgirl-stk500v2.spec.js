@@ -334,7 +334,6 @@ test('[ AVRGIRL-STK500V2 ] ::getParameter', function (t) {
   });
 });
 
-// this needs more work to cover each successive command sent, etc
 test('[ AVRGIRL-STK500V2 ] ::readFuses', function (t) {
   var a = new avrgirl(FLoptions);
   var spyw = sinon.spy(a, 'write');
