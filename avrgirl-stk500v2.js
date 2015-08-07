@@ -123,22 +123,12 @@ avrgirlStk500v2.prototype.verifySignature = function (sig, data, callback) {
   if (data[1] === C.STATUS_CMD_OK) {
     var signature = data.slice(3, 3 + sig.length);
     if (!signature.equals(sig)) {
-      error = new Error('Failed to verify: programmer signature does not match.');
+      error = new Error('Failed to verify: signature does not match.');
     }
   } else {
     error = new Error('Failed to verify: programmer return status was not OK.');
   }
   callback(error);
-};
-
-avrgirlStk500v2.prototype.verifyProgrammer = function (sig, callback) {
-  var self = this;
-
-  this.getSignature(function (error, data) {
-    self.verifySignature(sig, data, function(error) {
-      callback(error);
-    });
-  });
 };
 
 avrgirlStk500v2.prototype.loadAddress = function (memType, address, callback) {

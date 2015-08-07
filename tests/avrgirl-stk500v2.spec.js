@@ -51,7 +51,6 @@ test('[ AVRGIRL-STK500V2 ] method presence', function (t) {
     'sendCmd',
     'getSignature',
     'verifySignature',
-    'verifyProgrammer',
     'loadAddress',
     'loadPage',
     'writeMem',
