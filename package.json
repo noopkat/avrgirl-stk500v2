@@ -30,6 +30,7 @@
   "devDependencies": {
     "istanbul": "^0.3.17",
     "istanbul-coveralls": "^1.0.3",
+    "mock-usb": "^1.0.1",
     "proxyquire": "^1.6.0",
     "sinon": "^1.15.4",
     "tap-spec": "^4.0.2",

@@ -2,7 +2,7 @@
 var test = require('tape');
 // test helpers
 var sinon = require('sinon');
-var usb = require('./helpers/mock-usb');
+var usb = require('mock-usb');
 
 // module to test
 var libusb = require('../lib/libusb-comms');

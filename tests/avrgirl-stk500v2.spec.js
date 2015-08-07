@@ -5,7 +5,7 @@ var sinon = require('sinon');
 var proxyquire = require('proxyquire');
 var chip = require('./helpers/mock-chip');
 var libusbmock = require('./helpers/mock-libusb-comms');
-var usbmock = require('./helpers/mock-usb');
+var usbmock = require('mock-usb');
 
 // module to test
 var avrgirl = proxyquire('../avrgirl-stk500v2', { './lib/libusb-comms': libusbmock });
