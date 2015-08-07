@@ -156,13 +156,12 @@ test('[ AVRGIRL-STK500V2 ] ::getSignature', function (t) {
   var spyr = sinon.spy(a, 'read');
   var buf = new Buffer([0x01]);
 
-  t.plan(4);
+  t.plan(3);
 
   a.getSignature(function(error, data) {
     t.error(error, 'no error on call');
     t.ok(data, 'passed data into callback');
     t.ok(testBuffer(spyw, 0, 0, buf), 'called write with correct cmd');
-    t.ok(spyr.calledWith(17), 'called read with arg of 17');
   });
 });
 

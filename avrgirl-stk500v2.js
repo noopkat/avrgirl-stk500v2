@@ -12,6 +12,7 @@ function avrgirlStk500v2(options) {
     debug: options.debug || false,
     frameless: options.frameless || false
   };
+
   this.seq = 0;
   this.debug = this.options.debug ? console.log : function() {};
 
@@ -88,17 +89,21 @@ avrgirlStk500v2.prototype.read = function (length, callback) {
   var self = this;
   if (typeof length !== 'number') { return callback(new Error('Failed to read: length must be a number.')) }
   this.device.read(length, function (error, data) {
-    var buffer = (self.options.frameless) ? data : data.slice(6);
-    callback(error, buffer);
+    //var buffer = (self.options.frameless) ? data : data.slice(6);
+    callback(error, data);
   });
 };
 
 avrgirlStk500v2.prototype.sendCmd = function(cmd, callback) {
   var self = this;
+  var frameless = this.options.frameless;
+  var readLen = frameless ? 2 : 8;
+  var statusPos = frameless ? 1 : 6;
+
   this.write(cmd, function (error) {
     if (error) { return callback(error); }
-    self.read(2, function (error, data) {
-      if (!error && data.length > 0 && data[1] !== C.STATUS_CMD_OK) {
+    self.read(readLen, function (error, data) {
+      if (!error && data.length > 0 && data[statusPos] !== C.STATUS_CMD_OK) {
         var error = new Error('Return status was not OK. Received instead: ' + data.toString('hex'));
       }
       callback(error);
@@ -109,16 +114,19 @@ avrgirlStk500v2.prototype.sendCmd = function(cmd, callback) {
 avrgirlStk500v2.prototype.getSignature = function (callback) {
   var self = this;
   var cmd = new Buffer([C.CMD_SIGN_ON]);
-  var length = 17;
+  var frameless = this.options.frameless;
+  var readLen = frameless ? 3 : 9;
+  var statusPos = frameless ? 1 : 6;
+  var sigPos = frameless ? 3 : 8;
+  var foot = frameless ? 0 : 1;
 
   this.write(cmd, function (error) {
     if (error) { callback(error); }
-    self.read(length, function (error, data) {
-      if (data[1] !== C.STATUS_CMD_OK) {
+    self.read(readLen, function (error, data) {
+      if (data[statusPos] !== C.STATUS_CMD_OK) {
         error = new Error('Failed to verify: programmer return status was not OK.');
       }
-      // support framing here
-      var signature = data.slice(3);
+      var signature = data.slice(sigPos, data.length - foot);
       callback(error, signature);
     });
   });
