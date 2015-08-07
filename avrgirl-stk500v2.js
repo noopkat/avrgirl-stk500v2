@@ -358,29 +358,30 @@ avrgirlStk500v2.prototype.cmdSpiMulti = function (options, callback) {
 
 avrgirlStk500v2.prototype.readFuses = function (callback) {
   var self = this;
-  var options = this.options.chip;
+  var chip = this.options.chip;
+  var fuses = chip.fuses;
   var set = 0;
-  var reads = ['low', 'high', 'ext'];
+  var reads = Object.keys(fuses.read);
   var readLen = (this.options.frameless) ? 4 : 10;
   var fusePos = (this.options.frameless) ? 2 : 7;
 
   var cmd = new Buffer([
     C.CMD_READ_FUSE_ISP,
-    options.fuses.startAddress
+    fuses.startAddress
   ]);
 
-  var cmdf = Buffer.concat([cmd, new Buffer(options.fuses.read[reads[0]])], 6);
-  var response = new Buffer(3);
+  var cmdf = Buffer.concat([cmd, new Buffer(fuses.read[reads[0]])], 6);
+  var response = {};
 
   function getFuseByte() {
     self.write(cmdf, function (error) {
       if (error) { callback(error); }
       self.read(readLen, function(error, data) {
         if (error) { callback(error); }
-        response[set] = data[fusePos];
+        response[reads[set]] = new Buffer([data[fusePos]]);
         set += 1;
         if (set < 3) {
-          cmdf = Buffer.concat([cmd, new Buffer(options.fuses.read[reads[set]])], 6);
+          cmdf = Buffer.concat([cmd, new Buffer(fuses.read[reads[set]])], 6);
           getFuseByte();
         } else {
           callback(null, response);
