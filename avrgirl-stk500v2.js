@@ -365,7 +365,6 @@ avrgirlStk500v2.prototype.readFuses = function (callback) {
   var response = {};
 
   async.eachSeries(reads, function iterator(item, cb) {
-    console.log('reading ' + item);
     self.readFuse(item, function(error, data) {
       if (error) { return callback(new Error(error), null); }
       response[item] = data;
