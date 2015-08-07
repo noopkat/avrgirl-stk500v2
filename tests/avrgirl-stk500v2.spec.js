@@ -341,13 +341,14 @@ test('[ AVRGIRL-STK500V2 ] ::readFuses', function (t) {
   var spyr = sinon.spy(a, 'read');
   var fuses = 3;
 
-  t.plan(4);
+  t.plan(5);
 
   a.readFuses(function(error, data) {
     t.equals(spyw.callCount, fuses, 'called write for each fuse');
     t.equals(spyr.callCount, fuses, 'called read for each fuse');
     t.error(error, 'no error on callback');
-    t.equals(data.length, fuses, 'got parameter data back, correct length');
+    t.equals(typeof data, 'object', 'got parameter data back, type is object');
+    t.equals(Object.keys(data).length, fuses, 'got parameter data back, correct length');
   });
 });
 
