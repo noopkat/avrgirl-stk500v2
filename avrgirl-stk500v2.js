@@ -4,6 +4,7 @@ var util = require('util');
 var async = require('async');
 var bufferEqual = require('buffer-equal');
 var libusb = require('./lib/libusb-comms');
+var serialcom = require('./lib/serialport-comms');
 
 function avrgirlStk500v2(options) {
   this.options = {
@@ -13,15 +14,19 @@ function avrgirlStk500v2(options) {
     frameless: options.frameless || false
   };
 
+  this.device;
   this.seq = 0;
   this.debug = this.options.debug ? console.log : function() {};
 
-  // if (this.options.comm.deviceDescriptor && typeof this.options.comm.deviceDescriptor === 'object') {
-  //     this.commType = 'libusb';
-  //  }
-
-  // evenutally wrap the following line with the conditional above
-  this.device = new libusb(this.options.comm);
+  if (this.options.comm.path) {
+    this.debug('serialport!');
+    this.commType = 'serialcom';
+    this.device = new serialcom(this.options.comm);
+  } else {
+    this.debug('libusb!');
+    this.commType = 'libusb';
+    this.device = new libusb(this.options.comm);
+  }
 
   EventEmitter.call(this);
   this._setupComms();
@@ -80,6 +85,8 @@ avrgirlStk500v2.prototype.write = function (buffer, callback) {
 
   var data = (this.options.frameless) ? buffer : this.frame(buffer);
 
+  this.debug('writing', data);
+
   this.device.write(data, function (error) {
     callback(error);
   });
@@ -90,7 +97,9 @@ avrgirlStk500v2.prototype.read = function (length, callback) {
   if (typeof length !== 'number') { return callback(new Error('Failed to read: length must be a number.')) }
   this.device.read(length, function (error, data) {
     //var buffer = (self.options.frameless) ? data : data.slice(6);
-    callback(error, data);
+    var buffer = data || [];
+    self.debug('read', buffer);
+    callback(error, buffer);
   });
 };
 
@@ -103,7 +112,7 @@ avrgirlStk500v2.prototype.sendCmd = function(cmd, callback) {
   this.write(cmd, function (error) {
     if (error) { return callback(error); }
     self.read(readLen, function (error, data) {
-      if (!error && data.length > 0 && data[statusPos] !== C.STATUS_CMD_OK) {
+      if (!error && data && data.length > 0 && data[statusPos] !== C.STATUS_CMD_OK) {
         var error = new Error('Return status was not OK. Received instead: ' + data.toString('hex'));
       }
       callback(error);
@@ -127,7 +136,7 @@ avrgirlStk500v2.prototype.getSignature = function (callback) {
         error = new Error('Failed to verify: programmer return status was not OK.');
       }
       var signature = data.slice(sigPos, data.length - foot);
-      callback(error, signature);
+      callback(null, signature);
     });
   });
 };
@@ -238,7 +247,8 @@ avrgirlStk500v2.prototype.enterProgrammingMode = function (callback) {
   ]);
 
   this.sendCmd(cmd, function (error) {
-    var error = error ? new Error('Failed to enter prog mode: programmer return status was not OK.') : null;
+    //var error = error ? new Error('Failed to enter prog mode: programmer return status was not OK.') : null;
+    var error = error ? new Error(error) : null;
     callback(error);
   });
 };
