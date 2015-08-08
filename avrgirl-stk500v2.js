@@ -306,6 +306,7 @@ avrgirlStk500v2.prototype.readEeprom = function (length, callback) {
 avrgirlStk500v2.prototype.readMem = function (memType, length, callback) {
   var self = this;
   var options = this.options.chip;
+  var headLen = this.options.frameless ? 3 : 6;
   var cmd = memType === 'flash' ? C.CMD_READ_FLASH_ISP : C.CMD_READ_EEPROM_ISP
   var buf = new Buffer([
     cmd,
@@ -316,7 +317,7 @@ avrgirlStk500v2.prototype.readMem = function (memType, length, callback) {
   this.write(buf, function (error) {
     var error = error ? new Error('Failed to initiate read memory: programmer return status was not OK.') : null;
     if (error) { return callback(error, null); }
-    self.read(length + 3, function(error, data) {
+    self.read(length + headLen, function(error, data) {
       var error = error ? new Error('Failed to read memory: programmer return status was not OK.') : null;
       callback(error, data);
     });
