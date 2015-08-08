@@ -122,7 +122,7 @@ avrgirlStk500v2.prototype.getSignature = function (callback) {
 
   this.write(cmd, function (error) {
     if (error) { callback(error); }
-    self.read(readLen, function (error, data) {
+    self.read(20 + readLen, function (error, data) {
       if (data[statusPos] !== C.STATUS_CMD_OK) {
         error = new Error('Failed to verify: programmer return status was not OK.');
       }
@@ -327,6 +327,10 @@ avrgirlStk500v2.prototype.getChipSignature = function (callback) {
   var self = this;
   var options = this.options.chip;
   var signature = options.signature;
+  var frameless = this.options.frameless;
+  var readLen = frameless ? 4 : 10;
+  var statusPos = frameless ? 1 : 6;
+  var sigPos = frameless ? 2 : 7;
   var set = 0;
 
   var cmd = new Buffer([
@@ -340,10 +344,10 @@ avrgirlStk500v2.prototype.getChipSignature = function (callback) {
 
   function getSigByte() {
     self.write(cmd, function (error) {
-      if (error) { callback(error); }
-      self.read(8, function(error, data) {
-        if (error) { callback(error); }
-        response[set] = data[2];
+      if (error) { return callback(error); }
+      self.read(readLen, function(error, data) {
+        if (error) { return callback(error); }
+        response[set] = data[sigPos];
         set += 1;
         cmd[4] = set;
         if (set < 3) {
