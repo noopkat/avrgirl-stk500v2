@@ -470,9 +470,22 @@ test('[ AVRGIRL-STK500V2 ] ::writeMem', function (t) {
   });
 });
 
-// TODO:
-// readChipSignature
-// writeMem
+test('[ AVRGIRL-STK500V2 ] ::getChipSignature', function (t) {
+  var a = new avrgirl(FLoptions);
+  var spyw = sinon.spy(a, 'write');
+  var spyr = sinon.spy(a, 'read');
+  var count = 3;
+
+  t.plan(5);
+
+  a.getChipSignature(function(error, data) {
+    t.equals(spyw.callCount, count, 'called write for each byte');
+    t.equals(spyr.callCount, count, 'called read for each byte');
+    t.error(error, 'no error on callback');
+    t.equals(typeof data, 'object', 'got parameter data back, type is object');
+    t.equals(data.length, count, 'got parameter data back, correct length');
+  });
+});
 
 require('./libusb-comms.spec');
 
