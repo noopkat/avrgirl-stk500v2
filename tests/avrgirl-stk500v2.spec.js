@@ -488,4 +488,5 @@ test('[ AVRGIRL-STK500V2 ] ::getChipSignature', function (t) {
 });
 
 require('./libusb-comms.spec');
+require('./serialport-comms.spec');
 
