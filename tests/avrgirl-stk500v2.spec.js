@@ -17,7 +17,7 @@ var FLoptions = {
   comm: usbmock,
   debug: false,
   frameless: true
-}
+};
 
 function testBuffer(spy, call, arg, buffer) {
   return (spy.called && spy.args[call][arg] && bufferEqual(spy.args[call][arg], buffer));
