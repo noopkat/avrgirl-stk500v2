@@ -487,6 +487,21 @@ test('[ AVRGIRL-STK500V2 ] ::getChipSignature', function (t) {
   });
 });
 
+test('[ AVRGIRL-STK500V2 ] ::writeFuse', function (t) {
+  var a = new avrgirl(FLoptions);
+  var buf = new Buffer([0x17, 0xAC, 0xA4, 0x00, 0xFF]);
+  var spyw = sinon.spy(a, 'write');
+  var spyr = sinon.spy(a, 'read');
+
+  t.plan(3);
+
+  a.writeFuse('ext', 0xFF, function(error, data) {
+    t.ok(testBuffer(spyw, 0, 0, buf), 'called write with correct buffer');
+    t.ok(spyr.calledWith(3), 'called read with correct length arg');
+    t.error(error, 'no error on callback');
+  });
+});
+
 require('./libusb-comms.spec');
 require('./serialport-comms.spec');
 

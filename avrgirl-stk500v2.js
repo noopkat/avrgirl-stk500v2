@@ -426,6 +426,31 @@ avrgirlStk500v2.prototype.readFuse = function (fuseType, callback) {
   });
 };
 
+avrgirlStk500v2.prototype.writeFuse = function (fuseType, value, callback) {
+  var self = this;
+  var options = this.options.chip;
+  var frameless = this.options.frameless;
+  var readLen = frameless ? 3 : 9;
+  var statusPos = frameless ? 1 : 6;
+  var fuseCmd = options.fuses.write[fuseType];
+
+  var cmd = new Buffer([
+    C.CMD_PROGRAM_FUSE_ISP,
+    fuseCmd[0], fuseCmd[1],
+    fuseCmd[2], value
+  ]);
+
+  this.write(cmd, function (error) {
+    if (error) { callback(error); }
+    self.read(readLen, function (error, data) {
+      if (data[statusPos] !== C.STATUS_CMD_OK) {
+        error = new Error('Failed to program fuse: programmer return status was not OK.');
+      }
+      callback(null);
+    });
+  });
+};
+
 avrgirlStk500v2.prototype.setParameter = function (param, value, callback) {
   var cmd = new Buffer([
     C.CMD_SET_PARAMETER,
