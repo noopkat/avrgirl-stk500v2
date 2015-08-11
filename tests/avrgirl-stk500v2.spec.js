@@ -69,9 +69,11 @@ test('[ AVRGIRL-STK500V2 ] method presence', function (t) {
     'readEeprom',
     'getChipSignature',
     'readFuses',
+    'readFuse',
+    'writeFuse',
     'cmdSpiMulti',
     'setParameter',
-    'getParameter',
+    'getParameter'
   ];
   for (var i = 0; i < methods.length; i += 1) {
     t.ok(isFn(methods[i]), methods[i]);
