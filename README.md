@@ -268,9 +268,6 @@ stk.exitProgrammingMode(function(error) {
 });
 ```
 
-'setParameter',
-'getParameter'
-
 ### eraseChip
 
 Erases both the flash and EEPROM memories on the microchip. Good practice to do before flashing any new data.
@@ -456,6 +453,7 @@ Usage:
 
 ```javascript
 var buffer = new Buffer([0x01, 0x00, 0x00]);
+
 stk.write(buffer, function(error) {
   console.log('written.');
 });
