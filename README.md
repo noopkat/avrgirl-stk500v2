@@ -227,7 +227,7 @@ Returns a buffer containing the signature bytes.
 Usage:
 
 ```javascript
-stk.getChipSignature(function(signature) {
+stk.getChipSignature(function(error, signature) {
   console.log(signature);
 });
 ```
@@ -241,7 +241,7 @@ Returns a buffer containing the signature bytes.
 Usage:
 
 ```javascript
-stk.getSignature(function(signature) {
+stk.getSignature(function(error, signature) {
   console.log(signature);
 });
 ```
