@@ -180,7 +180,7 @@ test('[ AVRGIRL-STK500V2 ] ::verifySignature', function (t) {
   });
 
   a.verifySignature(sig3, data, function(error) {
-    t.pass(error, 'returns error on non matching signature');
+    t.ok(error, 'returns error on non matching signature');
   });
 });
 
