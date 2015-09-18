@@ -177,7 +177,7 @@ avrgirlStk500v2.prototype.loadPage = function (memType, data, callback) {
   var cmd = new Buffer([
     cmd,
     lMSB, lLSB,
-    mem.mode, mem.delay,
+    0xC1, mem.delay,
     mem.write[0], mem.write[1], mem.write[2],
     mem.poll1, mem.poll2
   ]);
