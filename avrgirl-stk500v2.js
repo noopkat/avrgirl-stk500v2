@@ -318,6 +318,30 @@ avrgirlStk500v2.prototype.writeEeprom = function (hex, callback) {
   });
 };
 
+avrgirlStk500v2.prototype.quickFlash = function (hex, callback) {
+  var self = this;
+  async.series([
+    self.enterProgrammingMode.bind(self),
+    self.writeFlash.bind(self, hex),
+    self.exitProgrammingMode.bind(self)
+    ], function (error) {
+      return callback(error);
+    }
+  );
+};
+
+avrgirlStk500v2.prototype.quickEeprom = function (hex, callback) {
+  var self = this;
+  async.series([
+    self.enterProgrammingMode.bind(self),
+    self.writeEeprom.bind(self, hex),
+    self.exitProgrammingMode.bind(self)
+    ], function (error) {
+      return callback(error);
+    }
+  );
+};
+
 avrgirlStk500v2.prototype.readFlash = function (length, callback) {
   // optional convenience method
   this.readMem('flash', length, function(error, data) {

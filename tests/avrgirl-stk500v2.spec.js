@@ -484,6 +484,40 @@ test('[ AVRGIRL-STK500V2 ] ::writeMem', function (t) {
   });
 });
 
+test('[ AVRGIRL-STK500V2 ] ::quickFlash', function (t) {
+  var a = new avrgirl(FLoptions);
+  var spyEnter = sinon.spy(a, 'enterProgrammingMode');
+  var spyw = sinon.spy(a, 'writeFlash');
+  var spyExit = sinon.spy(a, 'exitProgrammingMode');
+  var file = __dirname + '/data/pr.hex';
+
+  t.plan(4);
+
+  a.quickFlash(file, function(error) {
+    t.ok(spyEnter.calledOnce, 'called enterProgrammingMode');
+    t.ok(spyw.calledOnce, 'called writeFlash');
+    t.ok(spyExit.calledOnce, 'called exitProgrammingMode');
+    t.error(error, 'no error on callback');
+  });
+});
+
+test('[ AVRGIRL-STK500V2 ] ::quickEeprom', function (t) {
+  var a = new avrgirl(FLoptions);
+  var spyEnter = sinon.spy(a, 'enterProgrammingMode');
+  var spyw = sinon.spy(a, 'writeEeprom');
+  var spyExit = sinon.spy(a, 'exitProgrammingMode');
+  var file = __dirname + '/data/eeprom.hex';
+
+  t.plan(4);
+
+  a.quickEeprom(file, function(error) {
+    t.ok(spyEnter.calledOnce, 'called enterProgrammingMode');
+    t.ok(spyw.calledOnce, 'called writeEeprom');
+    t.ok(spyExit.calledOnce, 'called exitProgrammingMode');
+    t.error(error, 'no error on callback');
+  });
+});
+
 test('[ AVRGIRL-STK500V2 ] ::getChipSignature', function (t) {
   var a = new avrgirl(FLoptions);
   var spyw = sinon.spy(a, 'write');

@@ -216,6 +216,51 @@ stk.on('ready', function() {
 
 ## Available methods
 
+### quickFlash
+
+This is a convenient, fast way to write to the flash memory of the microchip.
+
+Underneath, this method is doing the following:
+
+1. Enters programming mode 
+2. Calls writeFlash and writes to the flash memory on the chip
+3. Exits programming mode and calls back
+
+It does not erase the chip before writing.
+
+Provide a filepath string, and a callback, respectively. Alternatively, you may also provide a pre-parsed Buffer in in place of the filepath.
+
+Returns a null error upon callback if successful.
+
+```javascript
+stk.quickFlash('Blink.cpp.hex', function(error) {
+  console.log(error);
+});
+```
+
+### quickEeprom
+
+This is a convenient, fast way to write to the eeprom memory of the microchip.
+
+Underneath, this method is doing the following:
+
+1. Enters programming mode 
+2. Calls writeEeprom and writes to the eeprom memory on the chip
+3. Exits programming mode and calls back
+
+It does not erase the chip before writing.
+
+Provide a filepath string, and a callback, respectively. Alternatively, you may also provide a pre-parsed Buffer in in place of the filepath.
+
+Returns a null error upon callback if successful.
+
+```javascript
+
+stk.quickEeprom('myEeprom.cpp.hex', function(error) {
+  console.log(error);
+});
+```
+
 
 ### getChipSignature
 
