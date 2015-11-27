@@ -1,6 +1,6 @@
 {
   "name": "avrgirl-stk500v2",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "avrgirl flavoured stk500v2 protocol",
   "main": "avrgirl-stk500v2.js",
   "scripts": {
