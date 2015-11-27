@@ -26,7 +26,8 @@
   "homepage": "https://github.com/noopkat/avrgirl-stk500v2#readme",
   "dependencies": {
     "async": "^1.4.0",
-    "buffer-equal": "0.0.1"
+    "buffer-equal": "0.0.1",
+    "intel-hex": "^0.1.1"
   },
   "devDependencies": {
     "istanbul": "^0.3.17",

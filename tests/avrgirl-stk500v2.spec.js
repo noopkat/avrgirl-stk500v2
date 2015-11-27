@@ -378,19 +378,25 @@ test('[ AVRGIRL-STK500V2 ] ::writeFlash', function (t) {
   var spy = sinon.spy(a, 'writeMem');
   var tinydata = new Buffer(50);
   var largedata = new Buffer(500);
+  var file = __dirname + '/data/pr.hex';
 
-  t.plan(6);
+  t.plan(8);
 
   a.writeFlash(tinydata, function(error) {
     t.ok(spy.calledWith('flash'), 'one page: called writeMem with correct memtype');
     t.ok(testBuffer(spy, 0, 1, tinydata), 'one page: called writeMem with correct buffer');
-    t.error(error, 'no error on callback');
+    t.error(error, 'one page: no error on callback');
   });
   console.log(' ');
   a.writeFlash(largedata, function(error) {
     t.ok(spy.calledWith('flash'), 'multiple pages: called writeMem with correct memtype');
     t.ok(testBuffer(spy, 1, 1, largedata), 'multiple pages: called writeMem with correct buffer');
-    t.error(error, 'no error on callback');
+    t.error(error, 'multiple pages: no error on callback');
+  });
+  console.log(' ');
+  a.writeFlash(file, function(error) {
+    t.ok(spy.calledWith('flash'), 'filepath string: called writeMem with correct memtype');
+    t.error(error, 'filepath string: no error on callback');
   });
 });
 
@@ -400,8 +406,9 @@ test('[ AVRGIRL-STK500V2 ] ::writeEeprom', function (t) {
   var spy = sinon.spy(a, 'writeMem');
   var tinydata = new Buffer(3);
   var largedata = new Buffer(20);
+  var file = __dirname + '/data/eeprom.hex';
 
-  t.plan(6);
+  t.plan(8);
 
   a.writeEeprom(tinydata, function(error) {
     t.ok(spy.calledWith('eeprom'), 'one page: called writeMem with correct memtype');
@@ -413,6 +420,11 @@ test('[ AVRGIRL-STK500V2 ] ::writeEeprom', function (t) {
     t.ok(spy.calledWith('eeprom'), 'one page: called writeMem with correct memtype');
     t.ok(testBuffer(spy, 1, 1, largedata), 'one page: called writeMem with correct buffer');
     t.error(error, 'no error on callback');
+  });
+  console.log(' ');
+  a.writeEeprom(file, function(error) {
+    t.ok(spy.calledWith('eeprom'), 'filepath string: called writeMem with correct memtype');
+    t.error(error, 'filepath string: no error on callback');
   });
 });
 

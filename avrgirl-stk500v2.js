@@ -5,6 +5,8 @@ var async = require('async');
 var bufferEqual = require('buffer-equal');
 var libusb = require('./lib/libusb-comms');
 var serialcom = require('./lib/serialport-comms');
+var fs = require('fs');
+var intelhex = require('intel-hex');
 
 function avrgirlStk500v2(options) {
   this.options = {
@@ -197,6 +199,23 @@ avrgirlStk500v2.prototype.writeMem = function (memType, hex, callback) {
   var pageSize = options[memType].pageSize;
   var addressOffset = options[memType].addressOffset;
   var data;
+
+  if (typeof hex === 'string') {
+    try {
+      readFile = fs.readFileSync(hex, { encoding: 'utf8' });
+    } catch (e) {
+      if (e.code === 'ENOENT') {
+        return callback(new Error('could not write ' + memType + ': please supply a valid path to a hex file.'));
+      } else {
+        return callback(e);
+      }
+    }
+
+    hex = intelhex.parse(readFile).data;
+
+  } else if (!Buffer.isBuffer(hex)) {
+    return callback(new Error('could not write ' + memType + ': please supply either a hex buffer or a valid path to a hex file.'));
+  }
 
   async.whilst(
     function testEndOfFile() {
