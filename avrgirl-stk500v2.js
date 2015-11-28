@@ -381,6 +381,7 @@ avrgirlStk500v2.prototype.getChipSignature = function (callback) {
   var self = this;
   var options = this.options.chip;
   var signature = options.signature;
+  var signatureLength = signature.size;
   var frameless = this.options.frameless;
   var readLen = frameless ? 4 : 10;
   var statusPos = frameless ? 1 : 6;
@@ -404,7 +405,7 @@ avrgirlStk500v2.prototype.getChipSignature = function (callback) {
         response[set] = data[sigPos];
         set += 1;
         cmd[4] = set;
-        if (set < 3) {
+        if (set < signatureLength) {
           getSigByte();
         } else {
           callback(null, response);

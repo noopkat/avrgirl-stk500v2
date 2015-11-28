@@ -1,5 +1,10 @@
 module.exports = {
-  signature: [0x1E, 0x92, 0x06],
+  sig: [0x1E, 0x92, 0x06],
+  signature: {
+    size: 3,
+    startAddress: 0x00,
+    read: [0x30, 0x00, 0x00, 0x00]
+  },
   timeout: 0xC8,
   stabDelay: 0x64,
   cmdexeDelay: 0x19,
@@ -42,10 +47,6 @@ module.exports = {
   erase: {
     delay: 10,
     cmd: [0xAC, 0x80, 0x00, 0x00]
-  },
-  signature: {
-    startAddress: 0x00,
-    read: [0x30, 0x00, 0x00, 0x00]
   },
   fuses: {
     startAddress: 0x00,
