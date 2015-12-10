@@ -527,3 +527,5 @@ stk.sendCmd(buffer, function(error) {
   console.log(error);
 });
 ```
+
+don't merge this
