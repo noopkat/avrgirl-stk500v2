@@ -37,6 +37,6 @@
     "sinon": "^1.15.4",
     "tap-spec": "^4.0.2",
     "tape": "^4.0.1",
-    "virtual-serialport": "^0.1.1"
+    "virtual-serialport": "^0.3.2"
   }
 }
