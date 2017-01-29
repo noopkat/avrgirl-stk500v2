@@ -165,12 +165,13 @@ Logs activity information to the console while performing methods.
 ```javascript
 var stk500v2 = require('avrgirl-stk500v2');
 var serialport = require('serialport');
-var SerialPort = serialport.SerialPort;
+var SerialPort = serialport;
 
-var sp = new SerialPort('/dev/cu.usbmodem1411', {
+var sp = new Serialport('/dev/cu.usbmodem14341', {
   baudrate: 115200,
-  parser: serialport.parsers.raw
-}, false);
+  parser: SerialPort.parsers.raw,
+  autoOpen: false
+});
 
 var mega = {
   // all chip properties

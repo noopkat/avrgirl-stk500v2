@@ -40,7 +40,9 @@ avrgirlStk500v2.prototype._setupComms = function() {
   this.debug('setting up communication interface');
   var self = this;
   // libusb
-  this.open();
+  if (this.commType === 'libusb') {
+    this.open();
+  }
   this.device.setUpInterface(function(error) {
     if (!error) {
       setImmediate(emitReady, self);
