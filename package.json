@@ -4,8 +4,7 @@
   "description": "avrgirl flavoured stk500v2 protocol",
   "main": "avrgirl-stk500v2.js",
   "scripts": {
-    "test": "tape ./tests/*.spec.js | tap-spec",
-    "cover": "istanbul cover ./tests/avrgirl-stk500v2.spec.js && istanbul-coveralls"
+    "test": "tape ./tests/*.spec.js | tap-spec"
   },
   "repository": {
     "type": "git",
@@ -26,12 +25,9 @@
   "homepage": "https://github.com/noopkat/avrgirl-stk500v2#readme",
   "dependencies": {
     "async": "^1.4.0",
-    "buffer-equal": "1.0.0",
-    "intel-hex": "^0.1.1"
+    "intel-hex": "^0.1.2"
   },
   "devDependencies": {
-    "istanbul": "^0.4.0",
-    "istanbul-coveralls": "^1.0.3",
     "mock-usb": "^1.0.1",
     "proxyquire": "^1.6.0",
     "sinon": "^1.15.4",
