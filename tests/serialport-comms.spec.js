@@ -2,7 +2,6 @@
 var test = require('tape');
 // test helpers
 var sinon = require('sinon');
-var bufferEqual = require('buffer-equal');
 var vserial = require('virtual-serialport');
 //var vserialport = vserial.SerialPort;
 
@@ -73,19 +72,19 @@ test('[ SERIALPORT-COMMS ] ::close', function (t) {
 
 test('[ SERIALPORT-COMMS ] ::write', function (t) {
   var b = new serialcom(device);
-  var buf = new Buffer([0x01]);
+  var buf = Buffer.from([0x01]);
 
   t.plan(1);
 
   var spy = sinon.spy(device, 'write');
   b.write(buf);
-  var cond = (spy.calledOnce && spy.args[0][0] && bufferEqual(spy.args[0][0], buf));
+  var cond = (spy.calledOnce && spy.args[0][0] && buf.equals(spy.args[0][0]));
   t.ok(cond, 'called write method on correct endpoint with correct buffer arg');
 });
 
 test('[ SERIALPORT-COMMS ] ::read', function (t) {
   var b = new serialcom(device);
-  b.responses.push(new Buffer(8));
+  b.responses.push(Buffer.alloc(8));
   var spy = sinon.spy(b, 'read');
   t.plan(3);
 

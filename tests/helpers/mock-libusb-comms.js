@@ -16,7 +16,7 @@ libusb.prototype.write = function (buffer, callback) {
 };
 
 libusb.prototype.read = function (length, callback) {
-  var data = new Buffer(length);
+  var data = Buffer.alloc(length);
   data.fill(0xFF);
   data[1] = 0x00;
   callback(null, data);

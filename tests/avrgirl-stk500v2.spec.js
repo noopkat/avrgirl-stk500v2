@@ -3,7 +3,6 @@ var test = require('tape');
 // test helpers
 var sinon = require('sinon');
 var proxyquire = require('proxyquire');
-var bufferEqual = require('buffer-equal');
 var chip = require('./helpers/mock-chip');
 var libusbmock = require('./helpers/mock-libusb-comms');
 var usbmock = require('mock-usb');
@@ -20,7 +19,7 @@ var FLoptions = {
 };
 
 function testBuffer(spy, call, arg, buffer) {
-  return (spy.called && spy.args[call][arg] && bufferEqual(spy.args[call][arg], buffer));
+  return (spy.called && spy.args[call][arg] && buffer.equals(spy.args[call][arg]));
 };
 
 // run c tests
@@ -85,19 +84,19 @@ test('[ AVRGIRL-STK500V2 ] method presence', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::frame', function (t) {
   var a = new avrgirl(FLoptions);
-  var buffer = new Buffer([0xff, 0xff, 0xff, 0xff]);
-  var framedExample = new Buffer([0x1b, 0x00, 0x00, 0x04, 0x0e, 0xff, 0xff, 0xff, 0xff, 0x11]);
+  var buffer = Buffer.from([0xff, 0xff, 0xff, 0xff]);
+  var framedExample = Buffer.from([0x1b, 0x00, 0x00, 0x04, 0x0e, 0xff, 0xff, 0xff, 0xff, 0x11]);
   var framed = a.frame(buffer);
 
   t.ok(Buffer.isBuffer(buffer), 'returned result is a buffer');
   t.equal(framed.length, 10, 'returned result length is correct');
-  t.ok(bufferEqual(framedExample, framed), 'returned result equals expected value');
+  t.ok(framed.equals(framedExample), 'returned result equals expected value');
   t.end();
 });
 
 test('[ AVRGIRL-STK500V2 ] ::write', function (t) {
   var a = new avrgirl(FLoptions);
-  var buffer = new Buffer([0xff, 0xff, 0xff, 0xff]);
+  var buffer = Buffer.from([0xff, 0xff, 0xff, 0xff]);
   var array = [0xff, 0xff, 0xff, 0xff];
 
   t.plan(3);
@@ -117,14 +116,14 @@ test('[ AVRGIRL-STK500V2 ] ::write', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::read', function (t) {
   var a = new avrgirl(FLoptions);
-  var buffer = new Buffer([0xff, 0x00, 0xff, 0xff, 0xff, 0xff]);
+  var buffer = Buffer.from([0xff, 0x00, 0xff, 0xff, 0xff, 0xff]);
 
   t.plan(4);
 
   a.read(6, function(error, data) {
     t.ok(Buffer.isBuffer(data), 'result is in buffer format');
     t.equal(data.length, 6, 'read result length is expected');
-    t.ok(bufferEqual(buffer, data), 'buffer read is expected value');
+    t.ok(data.equals(buffer), 'buffer read is expected value');
   });
 
   a.read('string', function(error, data) {
@@ -134,8 +133,8 @@ test('[ AVRGIRL-STK500V2 ] ::read', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::sendCmd', function (t) {
   var a = new avrgirl(FLoptions);
-  var cmd = new Buffer([0x01]);
-  var buffer = new Buffer([0xff, 0x00, 0xff, 0xff, 0xff, 0xff]);
+  var cmd = Buffer.from([0x01]);
+  var buffer = Buffer.from([0xff, 0x00, 0xff, 0xff, 0xff, 0xff]);
 
   t.plan(3);
 
@@ -156,7 +155,7 @@ test('[ AVRGIRL-STK500V2 ] ::getSignature', function (t) {
   var a = new avrgirl(FLoptions);
   var spyw = sinon.spy(a, 'write');
   var spyr = sinon.spy(a, 'read');
-  var buf = new Buffer([0x01]);
+  var buf = Buffer.from([0x01]);
 
   t.plan(3);
 
@@ -169,9 +168,9 @@ test('[ AVRGIRL-STK500V2 ] ::getSignature', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::verifySignature', function (t) {
   var a = new avrgirl(FLoptions);
-  var data = new Buffer([0x01, 0x02, 0x03]);
-  var sig2 = new Buffer([0x01, 0x02, 0x03]);
-  var sig3 = new Buffer([0xf3, 0xf4, 0xf5]);
+  var data = Buffer.from([0x01, 0x02, 0x03]);
+  var sig2 = Buffer.from([0x01, 0x02, 0x03]);
+  var sig3 = Buffer.from([0xf3, 0xf4, 0xf5]);
 
   t.plan(2);
 
@@ -195,8 +194,8 @@ test('[ AVRGIRL-STK500V2 ] ::loadAddress', function (t) {
   var ysb = (0 >> 8) & 0xFF;
   var lsb = 0 & 0xFF;
 
-  var buf1 = new Buffer([0x06, msb1, xsb, ysb, lsb]);
-  var buf2 = new Buffer([0x06, msb2, xsb, ysb, lsb]);
+  var buf1 = Buffer.from([0x06, msb1, xsb, ysb, lsb]);
+  var buf2 = Buffer.from([0x06, msb2, xsb, ysb, lsb]);
   t.plan(4);
 
   a.loadAddress('flash', 0, function(error) {
@@ -215,10 +214,10 @@ test('[ AVRGIRL-STK500V2 ] ::loadPage', function (t) {
   var spy = sinon.spy(a, 'sendCmd');
   var lMSB = 5 >> 8;
   var lLSB = 5 & 0xFF;
-  var data = new Buffer([0xFF, 0xFF, 0xFF, 0xFF, 0xFF]);
+  var data = Buffer.from([0xFF, 0xFF, 0xFF, 0xFF, 0xFF]);
   var baddata = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF];
-  var buf1 = new Buffer([0x13, lMSB, lLSB, 0xC1, 6, 0x40, 0x4C, 0x20, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]);
-  var buf2 = new Buffer([0x15, lMSB, lLSB, 0xC1, 6, 0xC1, 0xC2, 0xA0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]);
+  var buf1 = Buffer.from([0x13, lMSB, lLSB, 0xC1, 6, 0x40, 0x4C, 0x20, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]);
+  var buf2 = Buffer.from([0x15, lMSB, lLSB, 0xC1, 6, 0xC1, 0xC2, 0xA0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]);
 
   t.plan(5);
 
@@ -240,7 +239,7 @@ test('[ AVRGIRL-STK500V2 ] ::loadPage', function (t) {
 test('[ AVRGIRL-STK500V2 ] ::enterProgrammingMode', function (t) {
   var a = new avrgirl(FLoptions);
   var spy = sinon.spy(a, 'sendCmd');
-  var buf = new Buffer([0x10, 0xC8, 0x64, 0x19, 0x20, 0x00, 0x53, 0x03, 0xAC, 0x53, 0x00, 0x00]);
+  var buf = Buffer.from([0x10, 0xC8, 0x64, 0x19, 0x20, 0x00, 0x53, 0x03, 0xAC, 0x53, 0x00, 0x00]);
 
   t.plan(2);
 
@@ -253,7 +252,7 @@ test('[ AVRGIRL-STK500V2 ] ::enterProgrammingMode', function (t) {
 test('[ AVRGIRL-STK500V2 ] ::exitProgrammingMode', function (t) {
   var a = new avrgirl(FLoptions);
   var spy = sinon.spy(a, 'sendCmd');
-  var buf = new Buffer([0x11, 0x01, 0x01]);
+  var buf = Buffer.from([0x11, 0x01, 0x01]);
 
   t.plan(2);
 
@@ -266,7 +265,7 @@ test('[ AVRGIRL-STK500V2 ] ::exitProgrammingMode', function (t) {
 test('[ AVRGIRL-STK500V2 ] ::eraseChip', function (t) {
   var a = new avrgirl(FLoptions);
   var spy = sinon.spy(a, 'sendCmd');
-  var buf = new Buffer([0x12, 10, 0x01, 0xAC, 0x80, 0x00, 0x00]);
+  var buf = Buffer.from([0x12, 10, 0x01, 0xAC, 0x80, 0x00, 0x00]);
 
   t.plan(2);
 
@@ -282,8 +281,8 @@ test('[ AVRGIRL-STK500V2 ] ::readMem', function (t) {
   var spyr = sinon.spy(a, 'read');
   var lMSB = 0x04 >> 8;
   var lLSB = 0x04;
-  var buf1 = new Buffer([0x14, lMSB, lLSB, 0x20]);
-  var buf2 = new Buffer([0x16, lMSB, lLSB, 0xA0]);
+  var buf1 = Buffer.from([0x14, lMSB, lLSB, 0x20]);
+  var buf2 = Buffer.from([0x16, lMSB, lLSB, 0xA0]);
 
   t.plan(10);
 
@@ -309,7 +308,7 @@ test('[ AVRGIRL-STK500V2 ] ::readMem', function (t) {
 test('[ AVRGIRL-STK500V2 ] ::setParameter', function (t) {
   var a = new avrgirl(FLoptions);
   var spy = sinon.spy(a, 'sendCmd');
-  var buf = new Buffer([0x02, 0x98, 0x01]);
+  var buf = Buffer.from([0x02, 0x98, 0x01]);
 
   t.plan(2);
 
@@ -323,7 +322,7 @@ test('[ AVRGIRL-STK500V2 ] ::getParameter', function (t) {
   var a = new avrgirl(FLoptions);
   var spyw = sinon.spy(a, 'write');
   var spyr = sinon.spy(a, 'read');
-  var buf = new Buffer([0x03, 0x98]);
+  var buf = Buffer.from([0x03, 0x98]);
 
   t.plan(4);
 
@@ -376,8 +375,8 @@ test('[ AVRGIRL-STK500V2 ] ::readFuse', function (t) {
 test('[ AVRGIRL-STK500V2 ] ::writeFlash', function (t) {
   var a = new avrgirl(FLoptions);
   var spy = sinon.spy(a, 'writeMem');
-  var tinydata = new Buffer(50);
-  var largedata = new Buffer(500);
+  var tinydata = Buffer.alloc(50);
+  var largedata = Buffer.alloc(500);
   var file = __dirname + '/data/pr.hex';
 
   t.plan(8);
@@ -404,8 +403,8 @@ test('[ AVRGIRL-STK500V2 ] ::writeFlash', function (t) {
 test('[ AVRGIRL-STK500V2 ] ::writeEeprom', function (t) {
   var a = new avrgirl(FLoptions);
   var spy = sinon.spy(a, 'writeMem');
-  var tinydata = new Buffer(3);
-  var largedata = new Buffer(20);
+  var tinydata = Buffer.alloc(3);
+  var largedata = Buffer.alloc(20);
   var file = __dirname + '/data/eeprom.hex';
 
   t.plan(8);
@@ -460,10 +459,10 @@ test('[ AVRGIRL-STK500V2 ] ::readFlash', function (t) {
 // so that they are properly unit testable.
 test('[ AVRGIRL-STK500V2 ] ::writeMem', function (t) {
   var a = new avrgirl(FLoptions);
-  var tinyfdata = new Buffer(50);
-  var largefdata = new Buffer(500);
-  var tinyedata = new Buffer(3);
-  var largeedata = new Buffer(50);
+  var tinyfdata = Buffer.alloc(50);
+  var largefdata = Buffer.alloc(500);
+  var tinyedata = Buffer.alloc(3);
+  var largeedata = Buffer.alloc(50);
 
   t.plan(4);
 
@@ -537,7 +536,7 @@ test('[ AVRGIRL-STK500V2 ] ::getChipSignature', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::writeFuse', function (t) {
   var a = new avrgirl(FLoptions);
-  var buf = new Buffer([0x17, 0xAC, 0xA4, 0x00, 0xFF]);
+  var buf = Buffer.from([0x17, 0xAC, 0xA4, 0x00, 0xFF]);
   var spyw = sinon.spy(a, 'write');
   var spyr = sinon.spy(a, 'read');
 

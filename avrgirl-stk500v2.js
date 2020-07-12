@@ -1,11 +1,10 @@
 var C = require('./lib/c');
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
+var fs = require('fs');
 var async = require('async');
-var bufferEqual = require('buffer-equal');
 var libusb = require('./lib/libusb-comms');
 var serialcom = require('./lib/serialport-comms');
-var fs = require('fs');
 var intelhex = require('intel-hex');
 
 function avrgirlStk500v2(options) {
@@ -63,7 +62,7 @@ avrgirlStk500v2.prototype.close = function() {
 avrgirlStk500v2.prototype.frame = function (buffer) {
   var lMSB = buffer.length >> 8;
   var lLSB = buffer.length & 0xFF;
-  var head = new Buffer([0x1B, this.seq, lMSB, lLSB, C.TOKEN]);
+  var head = Buffer.from([0x1B, this.seq, lMSB, lLSB, C.TOKEN]);
   var headed = Buffer.concat([head, buffer]);
 
   var checksum = 0;
@@ -73,7 +72,7 @@ avrgirlStk500v2.prototype.frame = function (buffer) {
 
   this.seq += 1;
 
-  var framed = Buffer.concat([headed, new Buffer([checksum])]);
+  var framed = Buffer.concat([headed, Buffer.from([checksum])]);
   return framed;
 };
 
@@ -82,7 +81,7 @@ avrgirlStk500v2.prototype.write = function (buffer, callback) {
     if (!Array.isArray(buffer)) {
       return callback(new Error('Failed to write: data was not Buffer or Array object.'));
     }
-    var buffer = new Buffer(buffer);
+    var buffer = Buffer.from(buffer);
   }
 
   var data = (this.options.frameless) ? buffer : this.frame(buffer);
@@ -124,7 +123,7 @@ avrgirlStk500v2.prototype.sendCmd = function(cmd, callback) {
 
 avrgirlStk500v2.prototype.getSignature = function (callback) {
   var self = this;
-  var cmd = new Buffer([C.CMD_SIGN_ON]);
+  var cmd = Buffer.from([C.CMD_SIGN_ON]);
   var frameless = this.options.frameless;
   var readLen = frameless ? 3 : 9;
   var statusPos = frameless ? 1 : 6;
@@ -145,7 +144,7 @@ avrgirlStk500v2.prototype.getSignature = function (callback) {
 
 avrgirlStk500v2.prototype.verifySignature = function (sig, data, callback) {
   var error = null;
-  if (!bufferEqual(data, sig)) {
+  if (!sig.equals(data)) {
     error = new Error('Failed to verify: signature does not match.');
   }
   callback(error);
@@ -158,7 +157,7 @@ avrgirlStk500v2.prototype.loadAddress = function (memType, address, callback) {
   var ysb = (address >> 8) & 0xFF;
   var lsb = address & 0xFF;
 
-  var cmd = new Buffer([C.CMD_LOAD_ADDRESS, msb, xsb, ysb, lsb]);
+  var cmd = Buffer.from([C.CMD_LOAD_ADDRESS, msb, xsb, ysb, lsb]);
 
   this.sendCmd(cmd, function (error) {
     var error = error ? new Error('Failed to load address: return status was not OK.') : null;
@@ -176,7 +175,7 @@ avrgirlStk500v2.prototype.loadPage = function (memType, data, callback) {
   var mem = this.options.chip[memType];
   var cmd = memType === 'flash' ? C.CMD_PROGRAM_FLASH_ISP : C.CMD_PROGRAM_EEPROM_ISP
 
-  var cmd = new Buffer([
+  var cmd = Buffer.from([
     cmd,
     lMSB, lLSB,
     0xC1, mem.delay,
@@ -255,7 +254,7 @@ avrgirlStk500v2.prototype.enterProgrammingMode = function (callback) {
   var options = this.options.chip;
   var enable = options.pgmEnable;
 
-  var cmd = new Buffer([
+  var cmd = Buffer.from([
     C.CMD_ENTER_PROGMODE_ISP,
     options.timeout, options.stabDelay,
     options.cmdexeDelay, options.syncLoops,
@@ -276,7 +275,7 @@ avrgirlStk500v2.prototype.exitProgrammingMode = function (callback) {
   var self = this;
   var options = this.options.chip;
 
-  var cmd = new Buffer([
+  var cmd = Buffer.from([
     C.CMD_LEAVE_PROGMODE_ISP, options.preDelay, options.postDelay
   ]);
 
@@ -291,7 +290,7 @@ avrgirlStk500v2.prototype.eraseChip = function (callback) {
   var options = this.options.chip;
   var erase = options.erase;
 
-  var cmd = new Buffer([
+  var cmd = Buffer.from([
     C.CMD_CHIP_ERASE_ISP,
     erase.delay, options.pollMethod,
     erase.cmd[0], erase.cmd[1],
@@ -361,7 +360,7 @@ avrgirlStk500v2.prototype.readMem = function (memType, length, callback) {
   var options = this.options.chip;
   var headLen = this.options.frameless ? 3 : 6;
   var cmd = memType === 'flash' ? C.CMD_READ_FLASH_ISP : C.CMD_READ_EEPROM_ISP
-  var buf = new Buffer([
+  var buf = Buffer.from([
     cmd,
     length >> 8, length,
     options[memType].read[0]
@@ -388,14 +387,14 @@ avrgirlStk500v2.prototype.getChipSignature = function (callback) {
   var sigPos = frameless ? 2 : 7;
   var set = 0;
 
-  var cmd = new Buffer([
+  var cmd = Buffer.from([
     C.CMD_READ_SIGNATURE_ISP,
     signature.startAddress,
     signature.read[0], signature.read[1],
     signature.read[2], signature.read[3]
   ]);
 
-  var response = new Buffer(3);
+  var response = Buffer.alloc(3);
 
   function getSigByte() {
     self.write(cmd, function (error) {
@@ -453,18 +452,18 @@ avrgirlStk500v2.prototype.readFuse = function (fuseType, callback) {
   var readLen = (this.options.frameless) ? 4 : 10;
   var fusePos = (this.options.frameless) ? 2 : 7;
 
-  var cmd = new Buffer([
+  var cmd = Buffer.from([
     C.CMD_READ_FUSE_ISP,
     chip.fuses.startAddress
   ]);
 
-  var cmdf = Buffer.concat([cmd, new Buffer(fuse)], cmd.length + fuse.length);
+  var cmdf = Buffer.concat([cmd, Buffer.from(fuse)], cmd.length + fuse.length);
 
   self.write(cmdf, function (error) {
     if (error) { callback(error); }
     self.read(readLen, function(error, data) {
       if (error) { callback(error); }
-      response = new Buffer([data[fusePos]]);
+      response = Buffer.from([data[fusePos]]);
       callback(null, response);
     });
   });
@@ -478,7 +477,7 @@ avrgirlStk500v2.prototype.writeFuse = function (fuseType, value, callback) {
   var statusPos = frameless ? 1 : 6;
   var fuseCmd = options.fuses.write[fuseType];
 
-  var cmd = new Buffer([
+  var cmd = Buffer.from([
     C.CMD_PROGRAM_FUSE_ISP,
     fuseCmd[0], fuseCmd[1],
     fuseCmd[2], value
@@ -496,7 +495,7 @@ avrgirlStk500v2.prototype.writeFuse = function (fuseType, value, callback) {
 };
 
 avrgirlStk500v2.prototype.setParameter = function (param, value, callback) {
-  var cmd = new Buffer([
+  var cmd = Buffer.from([
     C.CMD_SET_PARAMETER,
     param, value
   ]);
@@ -509,7 +508,7 @@ avrgirlStk500v2.prototype.setParameter = function (param, value, callback) {
 
 avrgirlStk500v2.prototype.getParameter = function (param, callback) {
   var self = this;
-  var cmd = new Buffer([
+  var cmd = Buffer.from([
     C.CMD_GET_PARAMETER,
     param
   ]);
