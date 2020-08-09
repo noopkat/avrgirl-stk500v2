@@ -264,7 +264,7 @@ test('[ AVRGIRL-STK500V2 ] ::exitProgrammingMode', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::eraseChip', function (t) {
   var a = new avrgirl(FLoptions);
-  var spy = sinon.spy(a, 'sendCmd');
+  var spy = sinon.spy(a, 'sendCmdAsync');
   var buf = Buffer.from([0x12, 10, 0x01, 0xAC, 0x80, 0x00, 0x00]);
 
   t.plan(2);

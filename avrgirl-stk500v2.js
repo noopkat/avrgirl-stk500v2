@@ -276,8 +276,7 @@ avrgirlStk500v2.prototype.exitProgrammingModeAsync = async function () {
 
 avrgirlStk500v2.prototype.exitProgrammingMode = callbackify(avrgirlStk500v2.prototype.exitProgrammingModeAsync);
 
-avrgirlStk500v2.prototype.eraseChip = function (callback) {
-  var self = this;
+avrgirlStk500v2.prototype.eraseChipAsync = async function () {
   var options = this.options.chip;
   var erase = options.erase;
 
@@ -288,13 +287,14 @@ avrgirlStk500v2.prototype.eraseChip = function (callback) {
     erase.cmd[2], erase.cmd[3]
   ]);
 
-  this.sendCmd(cmd, function (error) {
-    var error = error ? new Error('Failed to erase chip: programmer return status was not OK.') : null;
-    callback(error);
-  });
+  try {
+    await this.sendCmdAsync(cmd);
+  } catch {
+    throw new Error('Failed to erase chip: programmer return status was not OK.');
+  }
 };
 
-avrgirlStk500v2.prototype.eraseChipAsync = promisify(avrgirlStk500v2.prototype.eraseChip);
+avrgirlStk500v2.prototype.eraseChip = callbackify(avrgirlStk500v2.prototype.eraseChipAsync);
 
 avrgirlStk500v2.prototype.writeFlash = function (hex, callback) {
   // optional convenience method
