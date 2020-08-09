@@ -185,7 +185,7 @@ test('[ AVRGIRL-STK500V2 ] ::verifySignature', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::loadAddress', function (t) {
   var a = new avrgirl(FLoptions);
-  var spy = sinon.spy(a, 'sendCmd');
+  var spy = sinon.spy(a, 'sendCmdAsync');
   var dMSB1 = 0x80;
   var dMSB2 = 0x00;
   var msb1 = (0 >> 24) & 0xFF | dMSB1;

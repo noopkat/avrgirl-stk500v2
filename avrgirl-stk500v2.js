@@ -144,7 +144,7 @@ avrgirlStk500v2.prototype.verifySignatureAsync = async function (sig, data) {
 
 avrgirlStk500v2.prototype.verifySignature = callbackify(avrgirlStk500v2.prototype.verifySignatureAsync);
 
-avrgirlStk500v2.prototype.loadAddress = function (memType, address, callback) {
+avrgirlStk500v2.prototype.loadAddressAsync = async function (memType, address) {
   var dMSB = memType === 'flash' ? 0x80 : 0x00;
   var msb = (address >> 24) & 0xFF | dMSB;
   var xsb = (address >> 16) & 0xFF;
@@ -153,13 +153,14 @@ avrgirlStk500v2.prototype.loadAddress = function (memType, address, callback) {
 
   var cmd = Buffer.from([C.CMD_LOAD_ADDRESS, msb, xsb, ysb, lsb]);
 
-  this.sendCmd(cmd, function (error) {
-    var error = error ? new Error('Failed to load address: return status was not OK.') : null;
-    callback(error);
-  });
+  try {
+    await this.sendCmdAsync(cmd);
+  } catch (error) {
+    throw new Error('Failed to load address: return status was not OK.');
+  }
 };
 
-avrgirlStk500v2.prototype.loadAddressAsync = promisify(avrgirlStk500v2.prototype.loadAddress);
+avrgirlStk500v2.prototype.loadAddress = callbackify(avrgirlStk500v2.prototype.loadAddressAsync);
 
 avrgirlStk500v2.prototype.loadPage = function (memType, data, callback) {
   if (!Buffer.isBuffer(data)) {
