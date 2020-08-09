@@ -235,8 +235,7 @@ avrgirlStk500v2.prototype.writeMemAsync = async function (memType, hex) {
 
 avrgirlStk500v2.prototype.writeMem = callbackify(avrgirlStk500v2.prototype.writeMemAsync);
 
-avrgirlStk500v2.prototype.enterProgrammingMode = function (callback) {
-  var self = this;
+avrgirlStk500v2.prototype.enterProgrammingModeAsync = async function () {
   var options = this.options.chip;
   var enable = options.pgmEnable;
 
@@ -250,30 +249,32 @@ avrgirlStk500v2.prototype.enterProgrammingMode = function (callback) {
     enable[2], enable[3]
   ]);
 
-  this.sendCmd(cmd, function (error) {
-    //var error = error ? new Error('Failed to enter prog mode: programmer return status was not OK.') : null;
-    var error = error ? new Error(error) : null;
-    callback(error);
-  });
+  try {
+    await this.sendCmdAsync(cmd);
+  } catch (error) {
+    //var error = new Error('Failed to enter prog mode: programmer return status was not OK.');
+    var error = new Error(error);
+    throw error;
+  }
 };
 
-avrgirlStk500v2.prototype.enterProgrammingModeAsync = promisify(avrgirlStk500v2.prototype.enterProgrammingMode);
+avrgirlStk500v2.prototype.enterProgrammingMode = callbackify(avrgirlStk500v2.prototype.enterProgrammingModeAsync);
 
-avrgirlStk500v2.prototype.exitProgrammingMode = function (callback) {
-  var self = this;
+avrgirlStk500v2.prototype.exitProgrammingModeAsync = async function () {
   var options = this.options.chip;
 
   var cmd = Buffer.from([
     C.CMD_LEAVE_PROGMODE_ISP, options.preDelay, options.postDelay
   ]);
 
-  this.sendCmd(cmd, function (error) {
-    var error = error ? new Error('Failed to leave prog mode: programmer return status was not OK.') : null;
-    callback(error);
-  });
+  try {
+    await this.sendCmdAsync(cmd);
+  } catch (error) {
+    throw new Error('Failed to leave prog mode: programmer return status was not OK.');
+  }
 };
 
-avrgirlStk500v2.prototype.exitProgrammingModeAsync = promisify(avrgirlStk500v2.prototype.exitProgrammingMode);
+avrgirlStk500v2.prototype.exitProgrammingMode = callbackify(avrgirlStk500v2.prototype.exitProgrammingModeAsync);
 
 avrgirlStk500v2.prototype.eraseChip = function (callback) {
   var self = this;

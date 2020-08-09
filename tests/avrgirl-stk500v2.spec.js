@@ -238,7 +238,7 @@ test('[ AVRGIRL-STK500V2 ] ::loadPage', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::enterProgrammingMode', function (t) {
   var a = new avrgirl(FLoptions);
-  var spy = sinon.spy(a, 'sendCmd');
+  var spy = sinon.spy(a, 'sendCmdAsync');
   var buf = Buffer.from([0x10, 0xC8, 0x64, 0x19, 0x20, 0x00, 0x53, 0x03, 0xAC, 0x53, 0x00, 0x00]);
 
   t.plan(2);
@@ -251,7 +251,7 @@ test('[ AVRGIRL-STK500V2 ] ::enterProgrammingMode', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::exitProgrammingMode', function (t) {
   var a = new avrgirl(FLoptions);
-  var spy = sinon.spy(a, 'sendCmd');
+  var spy = sinon.spy(a, 'sendCmdAsync');
   var buf = Buffer.from([0x11, 0x01, 0x01]);
 
   t.plan(2);
