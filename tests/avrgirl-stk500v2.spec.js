@@ -519,8 +519,8 @@ test('[ AVRGIRL-STK500V2 ] ::quickEeprom', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::getChipSignature', function (t) {
   var a = new avrgirl(FLoptions);
-  var spyw = sinon.spy(a, 'write');
-  var spyr = sinon.spy(a, 'read');
+  var spyw = sinon.spy(a, 'writeAsync');
+  var spyr = sinon.spy(a, 'readAsync');
   var count = 3;
 
   t.plan(5);

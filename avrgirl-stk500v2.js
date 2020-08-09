@@ -368,8 +368,7 @@ avrgirlStk500v2.prototype.readMemAsync = async function (memType, length) {
 
 avrgirlStk500v2.prototype.readMem = callbackify(avrgirlStk500v2.prototype.readMemAsync);
 
-avrgirlStk500v2.prototype.getChipSignature = function (callback) {
-  var self = this;
+avrgirlStk500v2.prototype.getChipSignatureAsync = async function () {
   var options = this.options.chip;
   var signature = options.signature;
   var signatureLength = signature.size;
@@ -388,28 +387,18 @@ avrgirlStk500v2.prototype.getChipSignature = function (callback) {
 
   var response = Buffer.alloc(3);
 
-  function getSigByte() {
-    self.write(cmd, function (error) {
-      if (error) { return callback(error); }
-      self.read(readLen, function(error, data) {
-        if (error) { return callback(error); }
-        response[set] = data[sigPos];
-        set += 1;
-        cmd[4] = set;
-        if (set < signatureLength) {
-          getSigByte();
-        } else {
-          callback(null, response);
-        }
-      });
-    });
-  };
+  while (set < signatureLength) {
+    await this.writeAsync(cmd);
+    var data = await this.readAsync(readLen);
+    response[set] = data[sigPos];
+    set += 1;
+    cmd[4] = set;
+  }
 
-  getSigByte();
-
+  return response;
 };
 
-avrgirlStk500v2.prototype.getChipSignatureAsync = promisify(avrgirlStk500v2.prototype.getChipSignature);
+avrgirlStk500v2.prototype.getChipSignature = callbackify(avrgirlStk500v2.prototype.getChipSignatureAsync);
 
 avrgirlStk500v2.prototype.cmdSpiMulti = function (options, callback) {
   // // P02
