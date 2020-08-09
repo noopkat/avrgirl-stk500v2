@@ -296,23 +296,19 @@ avrgirlStk500v2.prototype.eraseChipAsync = async function () {
 
 avrgirlStk500v2.prototype.eraseChip = callbackify(avrgirlStk500v2.prototype.eraseChipAsync);
 
-avrgirlStk500v2.prototype.writeFlash = function (hex, callback) {
+avrgirlStk500v2.prototype.writeFlashAsync = async function (hex) {
   // optional convenience method
-  this.writeMem('flash', hex, function(error) {
-    return callback(error);
-  });
+  await this.writeMemAsync('flash', hex);
 };
 
-avrgirlStk500v2.prototype.writeFlashAsync = promisify(avrgirlStk500v2.prototype.writeFlash);
+avrgirlStk500v2.prototype.writeFlash = callbackify(avrgirlStk500v2.prototype.writeFlashAsync);
 
-avrgirlStk500v2.prototype.writeEeprom = function (hex, callback) {
- // optional convenience method
- this.writeMem('eeprom', hex, function(error) {
-    callback(error);
-  });
+avrgirlStk500v2.prototype.writeEepromAsync = async function (hex) {
+  // optional convenience method
+  await this.writeMemAsync('eeprom', hex);
 };
 
-avrgirlStk500v2.prototype.writeEepromAsync = promisify(avrgirlStk500v2.prototype.writeEeprom);
+avrgirlStk500v2.prototype.writeEeprom = callbackify(avrgirlStk500v2.prototype.writeEepromAsync);
 
 avrgirlStk500v2.prototype.quickFlash = function (hex, callback) {
   var self = this;

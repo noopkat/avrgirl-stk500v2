@@ -374,7 +374,7 @@ test('[ AVRGIRL-STK500V2 ] ::readFuse', function (t) {
 // TODO: test for data length being too large, return error
 test('[ AVRGIRL-STK500V2 ] ::writeFlash', function (t) {
   var a = new avrgirl(FLoptions);
-  var spy = sinon.spy(a, 'writeMem');
+  var spy = sinon.spy(a, 'writeMemAsync');
   var tinydata = Buffer.alloc(50);
   var largedata = Buffer.alloc(500);
   var file = __dirname + '/data/pr.hex';
@@ -402,7 +402,7 @@ test('[ AVRGIRL-STK500V2 ] ::writeFlash', function (t) {
 // TODO: test for data length being too large, return error
 test('[ AVRGIRL-STK500V2 ] ::writeEeprom', function (t) {
   var a = new avrgirl(FLoptions);
-  var spy = sinon.spy(a, 'writeMem');
+  var spy = sinon.spy(a, 'writeMemAsync');
   var tinydata = Buffer.alloc(3);
   var largedata = Buffer.alloc(20);
   var file = __dirname + '/data/eeprom.hex';
