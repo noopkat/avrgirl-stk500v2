@@ -187,8 +187,7 @@ avrgirlStk500v2.prototype.loadPageAsync = async function (memType, data) {
 
 avrgirlStk500v2.prototype.loadPage = callbackify(avrgirlStk500v2.prototype.loadPageAsync);
 
-avrgirlStk500v2.prototype.writeMem = function (memType, hex, callback) {
-  var self = this;
+avrgirlStk500v2.prototype.writeMemAsync = async function (memType, hex) {
   var options = this.options.chip;
   var pageAddress = 0;
   var useAddress;
@@ -201,52 +200,39 @@ avrgirlStk500v2.prototype.writeMem = function (memType, hex, callback) {
       readFile = fs.readFileSync(hex, { encoding: 'utf8' });
     } catch (e) {
       if (e.code === 'ENOENT') {
-        return callback(new Error('could not write ' + memType + ': please supply a valid path to a hex file.'));
+        throw new Error('could not write ' + memType + ': please supply a valid path to a hex file.');
       } else {
-        return callback(e);
+        throw e;
       }
     }
 
     hex = intelhex.parse(readFile).data;
 
   } else if (!Buffer.isBuffer(hex)) {
-    return callback(new Error('could not write ' + memType + ': please supply either a hex buffer or a valid path to a hex file.'));
+    throw new Error('could not write ' + memType + ': please supply either a hex buffer or a valid path to a hex file.');
   }
 
-  async.whilst(
-    function testEndOfFile() {
-      // case for data being flashed being less than one page in size
-      if (pageAddress === 0 && hex.length < pageSize) {
-        return false;
-      }
-      return pageAddress < hex.length;
-    },
-    function programPage(pagedone) {
-      async.series([
-        function loadAddress(done) {
-          useAddress = pageAddress >> addressOffset;
-          self.loadAddress(memType, useAddress, done);
-        },
-        function writeToPage(done) {
-          data = hex.slice(pageAddress, (hex.length > pageSize ? (pageAddress + pageSize) : hex.length - 1))
-          self.loadPage(memType, data, done);
-        },
-        function calcNextPage(done) {
-          pageAddress = pageAddress + data.length;
-          done();
-        }
-      ],
-      function pageIsDone(error) {
-        pagedone(error);
-      });
-    },
-    function(error) {
-      return callback(error);
+  function testEndOfFile() {
+    // case for data being flashed being less than one page in size
+    if (pageAddress === 0 && hex.length < pageSize) {
+      return false;
     }
-  );
+    return pageAddress < hex.length;
+  }
+
+  while (testEndOfFile()) {
+    // load address
+    useAddress = pageAddress >> addressOffset;
+    await this.loadAddressAsync(memType, useAddress);
+    // write to page
+    data = hex.slice(pageAddress, (hex.length > pageSize ? (pageAddress + pageSize) : hex.length - 1))
+    await this.loadPageAsync(memType, data);
+    // calc next page
+    pageAddress = pageAddress + data.length;
+  }
 };
 
-avrgirlStk500v2.prototype.writeMemAsync = promisify(avrgirlStk500v2.prototype.writeMem);
+avrgirlStk500v2.prototype.writeMem = callbackify(avrgirlStk500v2.prototype.writeMemAsync);
 
 avrgirlStk500v2.prototype.enterProgrammingMode = function (callback) {
   var self = this;
