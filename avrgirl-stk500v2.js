@@ -6,6 +6,7 @@ var async = require('async');
 var libusb = require('./lib/libusb-comms');
 var serialcom = require('./lib/serialport-comms');
 var intelhex = require('intel-hex');
+const { promisify } = require('util');
 
 function avrgirlStk500v2(options) {
   this.options = {
@@ -91,6 +92,8 @@ avrgirlStk500v2.prototype.write = function (buffer, callback) {
   });
 };
 
+avrgirlStk500v2.prototype.writeAsync = promisify(avrgirlStk500v2.prototype.write);
+
 avrgirlStk500v2.prototype.read = function (length, callback) {
   var self = this;
   if (typeof length !== 'number') { return callback(new Error('Failed to read: length must be a number.')) }
@@ -101,6 +104,8 @@ avrgirlStk500v2.prototype.read = function (length, callback) {
     callback(error, buffer);
   });
 };
+
+avrgirlStk500v2.prototype.readAsync = promisify(avrgirlStk500v2.prototype.read);
 
 avrgirlStk500v2.prototype.sendCmd = function(cmd, callback) {
   var self = this;
@@ -118,6 +123,8 @@ avrgirlStk500v2.prototype.sendCmd = function(cmd, callback) {
     });
   });
 };
+
+avrgirlStk500v2.prototype.sendCmdAsync = promisify(avrgirlStk500v2.prototype.sendCmd);
 
 avrgirlStk500v2.prototype.getSignature = function (callback) {
   var self = this;
@@ -140,6 +147,8 @@ avrgirlStk500v2.prototype.getSignature = function (callback) {
   });
 };
 
+avrgirlStk500v2.prototype.getSignatureAsync = promisify(avrgirlStk500v2.prototype.getSignature);
+
 avrgirlStk500v2.prototype.verifySignature = function (sig, data, callback) {
   var error = null;
   if (!sig.equals(data)) {
@@ -147,6 +156,8 @@ avrgirlStk500v2.prototype.verifySignature = function (sig, data, callback) {
   }
   callback(error);
 };
+
+avrgirlStk500v2.prototype.verifySignatureAsync = promisify(avrgirlStk500v2.prototype.verifySignature);
 
 avrgirlStk500v2.prototype.loadAddress = function (memType, address, callback) {
   var dMSB = memType === 'flash' ? 0x80 : 0x00;
@@ -162,6 +173,8 @@ avrgirlStk500v2.prototype.loadAddress = function (memType, address, callback) {
     callback(error);
   });
 };
+
+avrgirlStk500v2.prototype.loadAddressAsync = promisify(avrgirlStk500v2.prototype.loadAddress);
 
 avrgirlStk500v2.prototype.loadPage = function (memType, data, callback) {
   if (!Buffer.isBuffer(data)) {
@@ -187,6 +200,8 @@ avrgirlStk500v2.prototype.loadPage = function (memType, data, callback) {
     return callback(error);
   });
 };
+
+avrgirlStk500v2.prototype.loadPageAsync = promisify(avrgirlStk500v2.prototype.loadPage);
 
 avrgirlStk500v2.prototype.writeMem = function (memType, hex, callback) {
   var self = this;
@@ -247,6 +262,8 @@ avrgirlStk500v2.prototype.writeMem = function (memType, hex, callback) {
   );
 };
 
+avrgirlStk500v2.prototype.writeMemAsync = promisify(avrgirlStk500v2.prototype.writeMem);
+
 avrgirlStk500v2.prototype.enterProgrammingMode = function (callback) {
   var self = this;
   var options = this.options.chip;
@@ -269,6 +286,8 @@ avrgirlStk500v2.prototype.enterProgrammingMode = function (callback) {
   });
 };
 
+avrgirlStk500v2.prototype.enterProgrammingModeAsync = promisify(avrgirlStk500v2.prototype.enterProgrammingMode);
+
 avrgirlStk500v2.prototype.exitProgrammingMode = function (callback) {
   var self = this;
   var options = this.options.chip;
@@ -282,6 +301,8 @@ avrgirlStk500v2.prototype.exitProgrammingMode = function (callback) {
     callback(error);
   });
 };
+
+avrgirlStk500v2.prototype.exitProgrammingModeAsync = promisify(avrgirlStk500v2.prototype.exitProgrammingMode);
 
 avrgirlStk500v2.prototype.eraseChip = function (callback) {
   var self = this;
@@ -301,6 +322,8 @@ avrgirlStk500v2.prototype.eraseChip = function (callback) {
   });
 };
 
+avrgirlStk500v2.prototype.eraseChipAsync = promisify(avrgirlStk500v2.prototype.eraseChip);
+
 avrgirlStk500v2.prototype.writeFlash = function (hex, callback) {
   // optional convenience method
   this.writeMem('flash', hex, function(error) {
@@ -308,12 +331,16 @@ avrgirlStk500v2.prototype.writeFlash = function (hex, callback) {
   });
 };
 
+avrgirlStk500v2.prototype.writeFlashAsync = promisify(avrgirlStk500v2.prototype.writeFlash);
+
 avrgirlStk500v2.prototype.writeEeprom = function (hex, callback) {
  // optional convenience method
  this.writeMem('eeprom', hex, function(error) {
     callback(error);
   });
 };
+
+avrgirlStk500v2.prototype.writeEepromAsync = promisify(avrgirlStk500v2.prototype.writeEeprom);
 
 avrgirlStk500v2.prototype.quickFlash = function (hex, callback) {
   var self = this;
@@ -327,6 +354,8 @@ avrgirlStk500v2.prototype.quickFlash = function (hex, callback) {
   );
 };
 
+avrgirlStk500v2.prototype.quickFlashAsync = promisify(avrgirlStk500v2.prototype.quickFlash);
+
 avrgirlStk500v2.prototype.quickEeprom = function (hex, callback) {
   var self = this;
   async.series([
@@ -339,6 +368,8 @@ avrgirlStk500v2.prototype.quickEeprom = function (hex, callback) {
   );
 };
 
+avrgirlStk500v2.prototype.quickEepromAsync = promisify(avrgirlStk500v2.prototype.quickEeprom);
+
 avrgirlStk500v2.prototype.readFlash = function (length, callback) {
   // optional convenience method
   this.readMem('flash', length, function(error, data) {
@@ -346,12 +377,16 @@ avrgirlStk500v2.prototype.readFlash = function (length, callback) {
   });
 };
 
+avrgirlStk500v2.prototype.readFlashAsync = promisify(avrgirlStk500v2.prototype.readFlash);
+
 avrgirlStk500v2.prototype.readEeprom = function (length, callback) {
  // optional convenience method
  this.readMem('eeprom', length, function(error, data) {
     callback(error, data);
   });
 };
+
+avrgirlStk500v2.prototype.readEepromAsync = promisify(avrgirlStk500v2.prototype.readEeprom);
 
 avrgirlStk500v2.prototype.readMem = function (memType, length, callback) {
   var self = this;
@@ -373,6 +408,8 @@ avrgirlStk500v2.prototype.readMem = function (memType, length, callback) {
     });
   });
 };
+
+avrgirlStk500v2.prototype.readMemAsync = promisify(avrgirlStk500v2.prototype.readMem);
 
 avrgirlStk500v2.prototype.getChipSignature = function (callback) {
   var self = this;
@@ -415,6 +452,8 @@ avrgirlStk500v2.prototype.getChipSignature = function (callback) {
 
 };
 
+avrgirlStk500v2.prototype.getChipSignatureAsync = promisify(avrgirlStk500v2.prototype.getChipSignature);
+
 avrgirlStk500v2.prototype.cmdSpiMulti = function (options, callback) {
   // // P02
   //options are [cmd, numTx, numRx, rxStartAddr, txData]
@@ -438,6 +477,8 @@ avrgirlStk500v2.prototype.readFuses = function (callback) {
     callback(null, response);
   });
 };
+
+avrgirlStk500v2.prototype.readFusesAsync = promisify(avrgirlStk500v2.prototype.readFuses);
 
 avrgirlStk500v2.prototype.readFuse = function (fuseType, callback) {
   if ((typeof fuseType).toLowerCase() !== 'string') {
@@ -467,6 +508,8 @@ avrgirlStk500v2.prototype.readFuse = function (fuseType, callback) {
   });
 };
 
+avrgirlStk500v2.prototype.readFuseAsync = promisify(avrgirlStk500v2.prototype.readFuse);
+
 avrgirlStk500v2.prototype.writeFuse = function (fuseType, value, callback) {
   var self = this;
   var options = this.options.chip;
@@ -492,6 +535,8 @@ avrgirlStk500v2.prototype.writeFuse = function (fuseType, value, callback) {
   });
 };
 
+avrgirlStk500v2.prototype.writeFuseAsync = promisify(avrgirlStk500v2.prototype.writeFuse);
+
 avrgirlStk500v2.prototype.setParameter = function (param, value, callback) {
   var cmd = Buffer.from([
     C.CMD_SET_PARAMETER,
@@ -503,6 +548,8 @@ avrgirlStk500v2.prototype.setParameter = function (param, value, callback) {
     callback(error);
   });
 };
+
+avrgirlStk500v2.prototype.setParameterAsync = promisify(avrgirlStk500v2.prototype.setParameter);
 
 avrgirlStk500v2.prototype.getParameter = function (param, callback) {
   var self = this;
@@ -520,5 +567,7 @@ avrgirlStk500v2.prototype.getParameter = function (param, callback) {
     });
   });
 };
+
+avrgirlStk500v2.prototype.getParameterAsync = promisify(avrgirlStk500v2.prototype.getParameter);
 
 module.exports = avrgirlStk500v2;
