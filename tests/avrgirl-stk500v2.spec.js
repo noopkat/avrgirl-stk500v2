@@ -485,9 +485,9 @@ test('[ AVRGIRL-STK500V2 ] ::writeMem', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::quickFlash', function (t) {
   var a = new avrgirl(FLoptions);
-  var spyEnter = sinon.spy(a, 'enterProgrammingMode');
-  var spyw = sinon.spy(a, 'writeFlash');
-  var spyExit = sinon.spy(a, 'exitProgrammingMode');
+  var spyEnter = sinon.spy(a, 'enterProgrammingModeAsync');
+  var spyw = sinon.spy(a, 'writeFlashAsync');
+  var spyExit = sinon.spy(a, 'exitProgrammingModeAsync');
   var file = __dirname + '/data/pr.hex';
 
   t.plan(4);
@@ -502,9 +502,9 @@ test('[ AVRGIRL-STK500V2 ] ::quickFlash', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::quickEeprom', function (t) {
   var a = new avrgirl(FLoptions);
-  var spyEnter = sinon.spy(a, 'enterProgrammingMode');
-  var spyw = sinon.spy(a, 'writeEeprom');
-  var spyExit = sinon.spy(a, 'exitProgrammingMode');
+  var spyEnter = sinon.spy(a, 'enterProgrammingModeAsync');
+  var spyw = sinon.spy(a, 'writeEepromAsync');
+  var spyExit = sinon.spy(a, 'exitProgrammingModeAsync');
   var file = __dirname + '/data/eeprom.hex';
 
   t.plan(4);

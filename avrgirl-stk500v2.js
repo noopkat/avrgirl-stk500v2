@@ -310,33 +310,21 @@ avrgirlStk500v2.prototype.writeEepromAsync = async function (hex) {
 
 avrgirlStk500v2.prototype.writeEeprom = callbackify(avrgirlStk500v2.prototype.writeEepromAsync);
 
-avrgirlStk500v2.prototype.quickFlash = function (hex, callback) {
-  var self = this;
-  async.series([
-    self.enterProgrammingMode.bind(self),
-    self.writeFlash.bind(self, hex),
-    self.exitProgrammingMode.bind(self)
-    ], function (error) {
-      return callback(error);
-    }
-  );
+avrgirlStk500v2.prototype.quickFlashAsync = async function (hex) {
+  await this.enterProgrammingModeAsync();
+  await this.writeFlashAsync(hex);
+  await this.exitProgrammingModeAsync();
 };
 
-avrgirlStk500v2.prototype.quickFlashAsync = promisify(avrgirlStk500v2.prototype.quickFlash);
+avrgirlStk500v2.prototype.quickFlash = callbackify(avrgirlStk500v2.prototype.quickFlashAsync);
 
-avrgirlStk500v2.prototype.quickEeprom = function (hex, callback) {
-  var self = this;
-  async.series([
-    self.enterProgrammingMode.bind(self),
-    self.writeEeprom.bind(self, hex),
-    self.exitProgrammingMode.bind(self)
-    ], function (error) {
-      return callback(error);
-    }
-  );
+avrgirlStk500v2.prototype.quickEepromAsync = async function (hex, callback) {
+  await this.enterProgrammingModeAsync();
+  await this.writeEepromAsync(hex);
+  await this.exitProgrammingModeAsync();
 };
 
-avrgirlStk500v2.prototype.quickEepromAsync = promisify(avrgirlStk500v2.prototype.quickEeprom);
+avrgirlStk500v2.prototype.quickEeprom = callbackify(avrgirlStk500v2.prototype.quickEepromAsync);
 
 avrgirlStk500v2.prototype.readFlash = function (length, callback) {
   // optional convenience method
