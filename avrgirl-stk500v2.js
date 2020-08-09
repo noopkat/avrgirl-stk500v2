@@ -6,7 +6,7 @@ var async = require('async');
 var libusb = require('./lib/libusb-comms');
 var serialcom = require('./lib/serialport-comms');
 var intelhex = require('intel-hex');
-const { callbackify, promisify } = require('util');
+const { callbackify } = require('util');
 
 function avrgirlStk500v2(options) {
   this.options = {
@@ -483,23 +483,26 @@ avrgirlStk500v2.prototype.setParameterAsync = async function (param, value) {
 
 avrgirlStk500v2.prototype.setParameter = callbackify(avrgirlStk500v2.prototype.setParameterAsync);
 
-avrgirlStk500v2.prototype.getParameter = function (param, callback) {
-  var self = this;
+avrgirlStk500v2.prototype.getParameterAsync = async function (param) {
   var cmd = Buffer.from([
     C.CMD_GET_PARAMETER,
     param
   ]);
 
-  this.write(cmd, function (error) {
-    var error = error ? new Error('Failed to get parameter: programmer return status was not OK.') : null;
-    if (error) { return callback(error, null); }
-    self.read(8, function(error, data) {
-      var error = error ? new Error('Failed to get parameter: programmer return status was not OK.') : null;
-      callback(error, data);
-    });
-  });
+  try {
+    await this.writeAsync(cmd);
+  } catch (error) {
+    throw new Error('Failed to get parameter: programmer return status was not OK.');
+  }
+
+  try {
+    var data = await this.readAsync(8);
+    return data;
+  } catch (error) {
+    throw new Error('Failed to get parameter: programmer return status was not OK.');
+  }
 };
 
-avrgirlStk500v2.prototype.getParameterAsync = promisify(avrgirlStk500v2.prototype.getParameter);
+avrgirlStk500v2.prototype.getParameter = callbackify(avrgirlStk500v2.prototype.getParameterAsync);
 
 module.exports = avrgirlStk500v2;

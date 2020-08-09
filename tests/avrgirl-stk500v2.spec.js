@@ -320,8 +320,8 @@ test('[ AVRGIRL-STK500V2 ] ::setParameter', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::getParameter', function (t) {
   var a = new avrgirl(FLoptions);
-  var spyw = sinon.spy(a, 'write');
-  var spyr = sinon.spy(a, 'read');
+  var spyw = sinon.spy(a, 'writeAsync');
+  var spyr = sinon.spy(a, 'readAsync');
   var buf = Buffer.from([0x03, 0x98]);
 
   t.plan(4);
