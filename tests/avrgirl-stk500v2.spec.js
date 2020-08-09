@@ -429,7 +429,7 @@ test('[ AVRGIRL-STK500V2 ] ::writeEeprom', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::readEeprom', function (t) {
   var a = new avrgirl(FLoptions);
-  var spy = sinon.spy(a, 'readMem');
+  var spy = sinon.spy(a, 'readMemAsync');
   var length = 20;
 
   t.plan(3);
@@ -443,7 +443,7 @@ test('[ AVRGIRL-STK500V2 ] ::readEeprom', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::readFlash', function (t) {
   var a = new avrgirl(FLoptions);
-  var spy = sinon.spy(a, 'readMem');
+  var spy = sinon.spy(a, 'readMemAsync');
   var length = 20;
 
   t.plan(3);

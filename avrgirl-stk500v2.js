@@ -326,23 +326,21 @@ avrgirlStk500v2.prototype.quickEepromAsync = async function (hex, callback) {
 
 avrgirlStk500v2.prototype.quickEeprom = callbackify(avrgirlStk500v2.prototype.quickEepromAsync);
 
-avrgirlStk500v2.prototype.readFlash = function (length, callback) {
+avrgirlStk500v2.prototype.readFlashAsync = async function (length) {
   // optional convenience method
-  this.readMem('flash', length, function(error, data) {
-    callback(error, data);
-  });
+  var data = await this.readMemAsync('flash', length);
+  return data;
 };
 
-avrgirlStk500v2.prototype.readFlashAsync = promisify(avrgirlStk500v2.prototype.readFlash);
+avrgirlStk500v2.prototype.readFlash = callbackify(avrgirlStk500v2.prototype.readFlashAsync);
 
-avrgirlStk500v2.prototype.readEeprom = function (length, callback) {
- // optional convenience method
- this.readMem('eeprom', length, function(error, data) {
-    callback(error, data);
-  });
+avrgirlStk500v2.prototype.readEepromAsync = async function (length, callback) {
+  // optional convenience method
+  var data = await this.readMemAsync('eeprom', length);
+  return data;
 };
 
-avrgirlStk500v2.prototype.readEepromAsync = promisify(avrgirlStk500v2.prototype.readEeprom);
+avrgirlStk500v2.prototype.readEeprom = callbackify(avrgirlStk500v2.prototype.readEepromAsync);
 
 avrgirlStk500v2.prototype.readMem = function (memType, length, callback) {
   var self = this;
