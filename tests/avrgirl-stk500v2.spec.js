@@ -211,7 +211,7 @@ test('[ AVRGIRL-STK500V2 ] ::loadAddress', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::loadPage', function (t) {
   var a = new avrgirl(FLoptions);
-  var spy = sinon.spy(a, 'sendCmd');
+  var spy = sinon.spy(a, 'sendCmdAsync');
   var lMSB = 5 >> 8;
   var lLSB = 5 & 0xFF;
   var data = Buffer.from([0xFF, 0xFF, 0xFF, 0xFF, 0xFF]);

@@ -162,9 +162,9 @@ avrgirlStk500v2.prototype.loadAddressAsync = async function (memType, address) {
 
 avrgirlStk500v2.prototype.loadAddress = callbackify(avrgirlStk500v2.prototype.loadAddressAsync);
 
-avrgirlStk500v2.prototype.loadPage = function (memType, data, callback) {
+avrgirlStk500v2.prototype.loadPageAsync = async function (memType, data) {
   if (!Buffer.isBuffer(data)) {
-    return callback(new Error('Failed to write page: data was not Buffer'));
+    throw new Error('Failed to write page: data was not Buffer');
   }
 
   var lMSB = data.length >> 8;
@@ -182,12 +182,10 @@ avrgirlStk500v2.prototype.loadPage = function (memType, data, callback) {
 
   cmd = Buffer.concat([cmd, data]);
 
-  this.sendCmd(cmd, function (error) {
-    return callback(error);
-  });
+  await this.sendCmdAsync(cmd);
 };
 
-avrgirlStk500v2.prototype.loadPageAsync = promisify(avrgirlStk500v2.prototype.loadPage);
+avrgirlStk500v2.prototype.loadPage = callbackify(avrgirlStk500v2.prototype.loadPageAsync);
 
 avrgirlStk500v2.prototype.writeMem = function (memType, hex, callback) {
   var self = this;
