@@ -405,33 +405,27 @@ avrgirlStk500v2.prototype.cmdSpiMulti = function (options, callback) {
   //options are [cmd, numTx, numRx, rxStartAddr, txData]
 };
 
-avrgirlStk500v2.prototype.readFuses = function (callback) {
-  var self = this;
+avrgirlStk500v2.prototype.readFusesAsync = async function () {
   var chip = this.options.chip;
   var fuses = chip.fuses;
   var reads = Object.keys(fuses.read);
   var fusePos = (this.options.frameless) ? 2 : 7;
   var response = {};
 
-  async.eachSeries(reads, function iterator(item, cb) {
-    self.readFuse(item, function(error, data) {
-      if (error) { return callback(new Error(error), null); }
-      response[item] = data;
-      cb();
-    });
-  }, function done() {
-    callback(null, response);
-  });
-};
-
-avrgirlStk500v2.prototype.readFusesAsync = promisify(avrgirlStk500v2.prototype.readFuses);
-
-avrgirlStk500v2.prototype.readFuse = function (fuseType, callback) {
-  if ((typeof fuseType).toLowerCase() !== 'string') {
-    return callback(new Error('Failed to read fuse: fuse type should be a string'));
+  for (let item of reads) {
+    response[item] = await this.readFuseAsync(item);
   }
 
-  var self = this;
+  return response;
+};
+
+avrgirlStk500v2.prototype.readFuses = callbackify(avrgirlStk500v2.prototype.readFusesAsync);
+
+avrgirlStk500v2.prototype.readFuseAsync = async function (fuseType) {
+  if ((typeof fuseType).toLowerCase() !== 'string') {
+    throw new Error('Failed to read fuse: fuse type should be a string');
+  }
+
   var chip = this.options.chip;
   var fuse = chip.fuses.read[fuseType];
   var readLen = (this.options.frameless) ? 4 : 10;
@@ -444,17 +438,13 @@ avrgirlStk500v2.prototype.readFuse = function (fuseType, callback) {
 
   var cmdf = Buffer.concat([cmd, Buffer.from(fuse)], cmd.length + fuse.length);
 
-  self.write(cmdf, function (error) {
-    if (error) { callback(error); }
-    self.read(readLen, function(error, data) {
-      if (error) { callback(error); }
-      response = Buffer.from([data[fusePos]]);
-      callback(null, response);
-    });
-  });
+  await this.writeAsync(cmdf);
+  var data = this.readAsync(readLen);
+  var response = Buffer.from([data[fusePos]]);
+  return response;
 };
 
-avrgirlStk500v2.prototype.readFuseAsync = promisify(avrgirlStk500v2.prototype.readFuse);
+avrgirlStk500v2.prototype.readFuse = callbackify(avrgirlStk500v2.prototype.readFuseAsync);
 
 avrgirlStk500v2.prototype.writeFuse = function (fuseType, value, callback) {
   var self = this;

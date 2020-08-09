@@ -336,8 +336,8 @@ test('[ AVRGIRL-STK500V2 ] ::getParameter', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::readFuses', function (t) {
   var a = new avrgirl(FLoptions);
-  var spyw = sinon.spy(a, 'write');
-  var spyr = sinon.spy(a, 'read');
+  var spyw = sinon.spy(a, 'writeAsync');
+  var spyr = sinon.spy(a, 'readAsync');
   var fuses = 3;
 
   t.plan(5);
@@ -353,8 +353,8 @@ test('[ AVRGIRL-STK500V2 ] ::readFuses', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::readFuse', function (t) {
   var a = new avrgirl(FLoptions);
-  var spyw = sinon.spy(a, 'write');
-  var spyr = sinon.spy(a, 'read');
+  var spyw = sinon.spy(a, 'writeAsync');
+  var spyr = sinon.spy(a, 'readAsync');
 
   t.plan(6);
 
