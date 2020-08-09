@@ -446,8 +446,7 @@ avrgirlStk500v2.prototype.readFuseAsync = async function (fuseType) {
 
 avrgirlStk500v2.prototype.readFuse = callbackify(avrgirlStk500v2.prototype.readFuseAsync);
 
-avrgirlStk500v2.prototype.writeFuse = function (fuseType, value, callback) {
-  var self = this;
+avrgirlStk500v2.prototype.writeFuseAsync = async function (fuseType, value) {
   var options = this.options.chip;
   var frameless = this.options.frameless;
   var readLen = frameless ? 3 : 9;
@@ -460,18 +459,14 @@ avrgirlStk500v2.prototype.writeFuse = function (fuseType, value, callback) {
     fuseCmd[2], value
   ]);
 
-  this.write(cmd, function (error) {
-    if (error) { callback(error); }
-    self.read(readLen, function (error, data) {
-      if (data[statusPos] !== C.STATUS_CMD_OK) {
-        error = new Error('Failed to program fuse: programmer return status was not OK.');
-      }
-      callback(null);
-    });
-  });
+  await this.writeAsync(cmd);
+  var data = await this.readAsync(readLen);
+  if (data[statusPos] !== C.STATUS_CMD_OK) {
+    throw new Error('Failed to program fuse: programmer return status was not OK.');
+  }
 };
 
-avrgirlStk500v2.prototype.writeFuseAsync = promisify(avrgirlStk500v2.prototype.writeFuse);
+avrgirlStk500v2.prototype.writeFuse = callbackify(avrgirlStk500v2.prototype.writeFuseAsync);
 
 avrgirlStk500v2.prototype.setParameter = function (param, value, callback) {
   var cmd = Buffer.from([

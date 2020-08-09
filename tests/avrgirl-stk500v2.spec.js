@@ -537,8 +537,8 @@ test('[ AVRGIRL-STK500V2 ] ::getChipSignature', function (t) {
 test('[ AVRGIRL-STK500V2 ] ::writeFuse', function (t) {
   var a = new avrgirl(FLoptions);
   var buf = Buffer.from([0x17, 0xAC, 0xA4, 0x00, 0xFF]);
-  var spyw = sinon.spy(a, 'write');
-  var spyr = sinon.spy(a, 'read');
+  var spyw = sinon.spy(a, 'writeAsync');
+  var spyr = sinon.spy(a, 'readAsync');
 
   t.plan(3);
 
