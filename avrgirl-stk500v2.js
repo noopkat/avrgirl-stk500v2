@@ -6,7 +6,7 @@ var async = require('async');
 var libusb = require('./lib/libusb-comms');
 var serialcom = require('./lib/serialport-comms');
 var intelhex = require('intel-hex');
-const { promisify } = require('util');
+const { callbackify, promisify } = require('util');
 
 function avrgirlStk500v2(options) {
   this.options = {
@@ -75,10 +75,10 @@ avrgirlStk500v2.prototype.frame = function (buffer) {
   return framed;
 };
 
-avrgirlStk500v2.prototype.write = function (buffer, callback) {
+avrgirlStk500v2.prototype.writeAsync = async function (buffer) {
   if (!Buffer.isBuffer(buffer)) {
     if (!Array.isArray(buffer)) {
-      return callback(new Error('Failed to write: data was not Buffer or Array object.'));
+      throw new Error('Failed to write: data was not Buffer or Array object.');
     }
     var buffer = Buffer.from(buffer);
   }
@@ -87,44 +87,35 @@ avrgirlStk500v2.prototype.write = function (buffer, callback) {
 
   this.debug('writing', data);
 
-  this.device.write(data, function (error) {
-    callback(error);
-  });
+  await this.device.writeAsync(data);
 };
 
-avrgirlStk500v2.prototype.writeAsync = promisify(avrgirlStk500v2.prototype.write);
+avrgirlStk500v2.prototype.write = callbackify(avrgirlStk500v2.prototype.writeAsync);
 
-avrgirlStk500v2.prototype.read = function (length, callback) {
-  var self = this;
-  if (typeof length !== 'number') { return callback(new Error('Failed to read: length must be a number.')) }
-  this.device.read(length, function (error, data) {
-    //var buffer = (self.options.frameless) ? data : data.slice(6);
-    var buffer = data || [];
-    self.debug('read', buffer);
-    callback(error, buffer);
-  });
+avrgirlStk500v2.prototype.readAsync = async function (length) {
+  if (typeof length !== 'number') { throw new Error('Failed to read: length must be a number.'); }
+  var data = await this.device.readAsync(length);
+  //var buffer = (self.options.frameless) ? data : data.slice(6);
+  var buffer = data || [];
+  this.debug('read', buffer);
+  return buffer;
 };
 
-avrgirlStk500v2.prototype.readAsync = promisify(avrgirlStk500v2.prototype.read);
+avrgirlStk500v2.prototype.read = callbackify(avrgirlStk500v2.prototype.readAsync);
 
-avrgirlStk500v2.prototype.sendCmd = function(cmd, callback) {
-  var self = this;
+avrgirlStk500v2.prototype.sendCmdAsync = async function(cmd) {
   var frameless = this.options.frameless;
   var readLen = frameless ? 2 : 8;
   var statusPos = frameless ? 1 : 6;
 
-  this.write(cmd, function (error) {
-    if (error) { return callback(error); }
-    self.read(readLen, function (error, data) {
-      if (!error && data && data.length > 0 && data[statusPos] !== C.STATUS_CMD_OK) {
-        var error = new Error('Return status was not OK. Received instead: ' + data.toString('hex'));
-      }
-      callback(error);
-    });
-  });
+  await this.writeAsync(cmd);
+  var data = await this.readAsync(readLen);
+  if (data && data.length > 0 && data[statusPos] !== C.STATUS_CMD_OK) {
+    throw new Error('Return status was not OK. Received instead: ' + data.toString('hex'));
+  }
 };
 
-avrgirlStk500v2.prototype.sendCmdAsync = promisify(avrgirlStk500v2.prototype.sendCmd);
+avrgirlStk500v2.prototype.sendCmd = callbackify(avrgirlStk500v2.prototype.sendCmdAsync);
 
 avrgirlStk500v2.prototype.getSignature = function (callback) {
   var self = this;
