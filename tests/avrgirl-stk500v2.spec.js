@@ -153,8 +153,8 @@ test('[ AVRGIRL-STK500V2 ] ::sendCmd', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::getSignature', function (t) {
   var a = new avrgirl(FLoptions);
-  var spyw = sinon.spy(a, 'write');
-  var spyr = sinon.spy(a, 'read');
+  var spyw = sinon.spy(a, 'writeAsync');
+  var spyr = sinon.spy(a, 'readAsync');
   var buf = Buffer.from([0x01]);
 
   t.plan(3);

@@ -117,8 +117,7 @@ avrgirlStk500v2.prototype.sendCmdAsync = async function(cmd) {
 
 avrgirlStk500v2.prototype.sendCmd = callbackify(avrgirlStk500v2.prototype.sendCmdAsync);
 
-avrgirlStk500v2.prototype.getSignature = function (callback) {
-  var self = this;
+avrgirlStk500v2.prototype.getSignatureAsync = async function () {
   var cmd = Buffer.from([C.CMD_SIGN_ON]);
   var frameless = this.options.frameless;
   var readLen = frameless ? 3 : 9;
@@ -126,19 +125,16 @@ avrgirlStk500v2.prototype.getSignature = function (callback) {
   var sigPos = frameless ? 3 : 8;
   var foot = frameless ? 0 : 1;
 
-  this.write(cmd, function (error) {
-    if (error) { callback(error); }
-    self.read(20 + readLen, function (error, data) {
-      if (data[statusPos] !== C.STATUS_CMD_OK) {
-        error = new Error('Failed to verify: programmer return status was not OK.');
-      }
-      var signature = data.slice(sigPos, data.length - foot);
-      callback(null, signature);
-    });
-  });
+  await this.writeAsync(cmd);
+  var data = await this.readAsync(20 + readLen);
+  if (data[statusPos] !== C.STATUS_CMD_OK) {
+    throw new Error('Failed to verify: programmer return status was not OK.');
+  }
+  var signature = data.slice(sigPos, data.length - foot);
+  return signature;
 };
 
-avrgirlStk500v2.prototype.getSignatureAsync = promisify(avrgirlStk500v2.prototype.getSignature);
+avrgirlStk500v2.prototype.getSignature = callbackify(avrgirlStk500v2.prototype.getSignatureAsync);
 
 avrgirlStk500v2.prototype.verifySignature = function (sig, data, callback) {
   var error = null;
