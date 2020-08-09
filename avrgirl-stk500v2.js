@@ -342,8 +342,7 @@ avrgirlStk500v2.prototype.readEepromAsync = async function (length, callback) {
 
 avrgirlStk500v2.prototype.readEeprom = callbackify(avrgirlStk500v2.prototype.readEepromAsync);
 
-avrgirlStk500v2.prototype.readMem = function (memType, length, callback) {
-  var self = this;
+avrgirlStk500v2.prototype.readMemAsync = async function (memType, length) {
   var options = this.options.chip;
   var headLen = this.options.frameless ? 3 : 6;
   var cmd = memType === 'flash' ? C.CMD_READ_FLASH_ISP : C.CMD_READ_EEPROM_ISP
@@ -353,17 +352,21 @@ avrgirlStk500v2.prototype.readMem = function (memType, length, callback) {
     options[memType].read[0]
   ]);
 
-  this.write(buf, function (error) {
-    var error = error ? new Error('Failed to initiate read memory: programmer return status was not OK.') : null;
-    if (error) { return callback(error, null); }
-    self.read(length + headLen, function(error, data) {
-      var error = error ? new Error('Failed to read memory: programmer return status was not OK.') : null;
-      callback(error, data);
-    });
-  });
+  try {
+    await this.writeAsync(buf);
+  } catch (error) {
+    throw new Error('Failed to initiate read memory: programmer return status was not OK.');
+  }
+
+  try {
+    var data = this.readAsync(length + headLen);
+    return data;
+  } catch {
+    throw new Error('Failed to read memory: programmer return status was not OK.');
+  }
 };
 
-avrgirlStk500v2.prototype.readMemAsync = promisify(avrgirlStk500v2.prototype.readMem);
+avrgirlStk500v2.prototype.readMem = callbackify(avrgirlStk500v2.prototype.readMemAsync);
 
 avrgirlStk500v2.prototype.getChipSignature = function (callback) {
   var self = this;

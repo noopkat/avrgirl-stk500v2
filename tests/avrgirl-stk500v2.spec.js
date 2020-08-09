@@ -277,8 +277,8 @@ test('[ AVRGIRL-STK500V2 ] ::eraseChip', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::readMem', function (t) {
   var a = new avrgirl(FLoptions);
-  var spyw = sinon.spy(a, 'write');
-  var spyr = sinon.spy(a, 'read');
+  var spyw = sinon.spy(a, 'writeAsync');
+  var spyr = sinon.spy(a, 'readAsync');
   var lMSB = 0x04 >> 8;
   var lLSB = 0x04;
   var buf1 = Buffer.from([0x14, lMSB, lLSB, 0x20]);
