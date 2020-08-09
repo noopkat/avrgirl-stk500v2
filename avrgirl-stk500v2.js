@@ -194,6 +194,7 @@ avrgirlStk500v2.prototype.writeMemAsync = async function (memType, hex) {
   var pageSize = options[memType].pageSize;
   var addressOffset = options[memType].addressOffset;
   var data;
+  var readFile;
 
   if (typeof hex === 'string') {
     try {
