@@ -2,7 +2,6 @@ var C = require('./lib/c');
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 var fs = require('fs');
-var async = require('async');
 var libusb = require('./lib/libusb-comms');
 var serialcom = require('./lib/serialport-comms');
 var intelhex = require('intel-hex');
