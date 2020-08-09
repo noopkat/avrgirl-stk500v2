@@ -136,15 +136,13 @@ avrgirlStk500v2.prototype.getSignatureAsync = async function () {
 
 avrgirlStk500v2.prototype.getSignature = callbackify(avrgirlStk500v2.prototype.getSignatureAsync);
 
-avrgirlStk500v2.prototype.verifySignature = function (sig, data, callback) {
-  var error = null;
+avrgirlStk500v2.prototype.verifySignatureAsync = async function (sig, data) {
   if (!sig.equals(data)) {
-    error = new Error('Failed to verify: signature does not match.');
+    throw new Error('Failed to verify: signature does not match.');
   }
-  callback(error);
 };
 
-avrgirlStk500v2.prototype.verifySignatureAsync = promisify(avrgirlStk500v2.prototype.verifySignature);
+avrgirlStk500v2.prototype.verifySignature = callbackify(avrgirlStk500v2.prototype.verifySignatureAsync);
 
 avrgirlStk500v2.prototype.loadAddress = function (memType, address, callback) {
   var dMSB = memType === 'flash' ? 0x80 : 0x00;
