@@ -468,19 +468,20 @@ avrgirlStk500v2.prototype.writeFuseAsync = async function (fuseType, value) {
 
 avrgirlStk500v2.prototype.writeFuse = callbackify(avrgirlStk500v2.prototype.writeFuseAsync);
 
-avrgirlStk500v2.prototype.setParameter = function (param, value, callback) {
+avrgirlStk500v2.prototype.setParameterAsync = async function (param, value) {
   var cmd = Buffer.from([
     C.CMD_SET_PARAMETER,
     param, value
   ]);
 
-  this.sendCmd(cmd, function (error) {
-    var error = error ? new Error('Failed to set parameter: programmer return status was not OK.') : null;
-    callback(error);
-  });
+  try {
+    await this.sendCmdAsync(cmd);
+  } catch {
+    throw new Error('Failed to set parameter: programmer return status was not OK.');
+  }
 };
 
-avrgirlStk500v2.prototype.setParameterAsync = promisify(avrgirlStk500v2.prototype.setParameter);
+avrgirlStk500v2.prototype.setParameter = callbackify(avrgirlStk500v2.prototype.setParameterAsync);
 
 avrgirlStk500v2.prototype.getParameter = function (param, callback) {
   var self = this;

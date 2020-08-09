@@ -307,7 +307,7 @@ test('[ AVRGIRL-STK500V2 ] ::readMem', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::setParameter', function (t) {
   var a = new avrgirl(FLoptions);
-  var spy = sinon.spy(a, 'sendCmd');
+  var spy = sinon.spy(a, 'sendCmdAsync');
   var buf = Buffer.from([0x02, 0x98, 0x01]);
 
   t.plan(2);
