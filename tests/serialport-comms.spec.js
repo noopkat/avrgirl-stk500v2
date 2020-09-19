@@ -32,7 +32,7 @@ device.drain = function(callback) {
 };
 
 test('[ SERIALPORT-COMMS ] method presence', function (t) {
-  var b = new serialcom(device);
+  var b = serialcom(device);
   function isFn(name) {
     return typeof b[name] === 'function';
   };
@@ -52,7 +52,7 @@ test('[ SERIALPORT-COMMS ] method presence', function (t) {
 });
 
 test('[ SERIALPORT-COMMS ] ::open', function (t) {
-  var b = new serialcom(device);
+  var b = serialcom(device);
 
   var spy = sinon.spy(device, 'open');
 
@@ -62,7 +62,7 @@ test('[ SERIALPORT-COMMS ] ::open', function (t) {
 });
 
 test('[ SERIALPORT-COMMS ] ::close', function (t) {
-  var b = new serialcom(device);
+  var b = serialcom(device);
   var spy = sinon.spy(device, 'close');
 
   t.plan(1);
@@ -71,7 +71,7 @@ test('[ SERIALPORT-COMMS ] ::close', function (t) {
 });
 
 test('[ SERIALPORT-COMMS ] ::write', function (t) {
-  var b = new serialcom(device);
+  var b = serialcom(device);
   var buf = Buffer.from([0x01]);
 
   t.plan(1);
@@ -83,7 +83,7 @@ test('[ SERIALPORT-COMMS ] ::write', function (t) {
 });
 
 test('[ SERIALPORT-COMMS ] ::read', function (t) {
-  var b = new serialcom(device);
+  var b = serialcom(device);
   b.responses.push(Buffer.alloc(8));
   var spy = sinon.spy(b, 'read');
   t.plan(3);
@@ -96,7 +96,7 @@ test('[ SERIALPORT-COMMS ] ::read', function (t) {
 });
 
 test('[ SERIALPORT-COMMS ] ::setUpInterface', function (t) {
-  var b = new serialcom(device);
+  var b = serialcom(device);
   var stub = sinon.stub(b, 'sync', function(callback) {
     return callback(null);
   });
