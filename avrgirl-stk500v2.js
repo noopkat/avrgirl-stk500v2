@@ -22,7 +22,7 @@ function avrgirlStk500v2(options) {
   if (this.options.comm.path) {
     this.debug('serialport!');
     this.commType = 'serialcom';
-    this.device = new serialcom(this.options.comm);
+    this.device = serialcom(this.options.comm);
   } else {
     this.debug('libusb!');
     this.commType = 'libusb';
