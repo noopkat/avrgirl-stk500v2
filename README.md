@@ -399,7 +399,7 @@ Returns a null error and a buffer of the read bytes upon callback if successful.
 Usage:
 
 ```javascript
-stk.readFlash(64, function(error, data) {
+stk.readEeprom(64, function(error, data) {
   console.log(error, data);
 });
 ```
