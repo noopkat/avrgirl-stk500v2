@@ -74,12 +74,14 @@ test('[ SERIALPORT-COMMS ] ::write', function (t) {
   var b = new serialcom(device);
   var buf = Buffer.from([0x01]);
 
-  t.plan(1);
+  t.plan(2);
 
   var spy = sinon.spy(device, 'write');
-  b.write(buf);
-  var cond = (spy.calledOnce && spy.args[0][0] && buf.equals(spy.args[0][0]));
-  t.ok(cond, 'called write method on correct endpoint with correct buffer arg');
+  b.write(buf, function(error) {
+    t.error(error, 'no error');
+    var cond = (spy.calledOnce && spy.args[0][0] && buf.equals(spy.args[0][0]));
+    t.ok(cond, 'called write method on correct endpoint with correct buffer arg');
+  });
 });
 
 test('[ SERIALPORT-COMMS ] ::read', function (t) {

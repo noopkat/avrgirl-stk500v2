@@ -153,8 +153,8 @@ test('[ AVRGIRL-STK500V2 ] ::sendCmd', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::getSignature', function (t) {
   var a = new avrgirl(FLoptions);
-  var spyw = sinon.spy(a, 'write');
-  var spyr = sinon.spy(a, 'read');
+  var spyw = sinon.spy(a, 'writeAsync');
+  var spyr = sinon.spy(a, 'readAsync');
   var buf = Buffer.from([0x01]);
 
   t.plan(3);
@@ -185,7 +185,7 @@ test('[ AVRGIRL-STK500V2 ] ::verifySignature', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::loadAddress', function (t) {
   var a = new avrgirl(FLoptions);
-  var spy = sinon.spy(a, 'sendCmd');
+  var spy = sinon.spy(a, 'sendCmdAsync');
   var dMSB1 = 0x80;
   var dMSB2 = 0x00;
   var msb1 = (0 >> 24) & 0xFF | dMSB1;
@@ -211,7 +211,7 @@ test('[ AVRGIRL-STK500V2 ] ::loadAddress', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::loadPage', function (t) {
   var a = new avrgirl(FLoptions);
-  var spy = sinon.spy(a, 'sendCmd');
+  var spy = sinon.spy(a, 'sendCmdAsync');
   var lMSB = 5 >> 8;
   var lLSB = 5 & 0xFF;
   var data = Buffer.from([0xFF, 0xFF, 0xFF, 0xFF, 0xFF]);
@@ -238,7 +238,7 @@ test('[ AVRGIRL-STK500V2 ] ::loadPage', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::enterProgrammingMode', function (t) {
   var a = new avrgirl(FLoptions);
-  var spy = sinon.spy(a, 'sendCmd');
+  var spy = sinon.spy(a, 'sendCmdAsync');
   var buf = Buffer.from([0x10, 0xC8, 0x64, 0x19, 0x20, 0x00, 0x53, 0x03, 0xAC, 0x53, 0x00, 0x00]);
 
   t.plan(2);
@@ -251,7 +251,7 @@ test('[ AVRGIRL-STK500V2 ] ::enterProgrammingMode', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::exitProgrammingMode', function (t) {
   var a = new avrgirl(FLoptions);
-  var spy = sinon.spy(a, 'sendCmd');
+  var spy = sinon.spy(a, 'sendCmdAsync');
   var buf = Buffer.from([0x11, 0x01, 0x01]);
 
   t.plan(2);
@@ -264,7 +264,7 @@ test('[ AVRGIRL-STK500V2 ] ::exitProgrammingMode', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::eraseChip', function (t) {
   var a = new avrgirl(FLoptions);
-  var spy = sinon.spy(a, 'sendCmd');
+  var spy = sinon.spy(a, 'sendCmdAsync');
   var buf = Buffer.from([0x12, 10, 0x01, 0xAC, 0x80, 0x00, 0x00]);
 
   t.plan(2);
@@ -277,8 +277,8 @@ test('[ AVRGIRL-STK500V2 ] ::eraseChip', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::readMem', function (t) {
   var a = new avrgirl(FLoptions);
-  var spyw = sinon.spy(a, 'write');
-  var spyr = sinon.spy(a, 'read');
+  var spyw = sinon.spy(a, 'writeAsync');
+  var spyr = sinon.spy(a, 'readAsync');
   var lMSB = 0x04 >> 8;
   var lLSB = 0x04;
   var buf1 = Buffer.from([0x14, lMSB, lLSB, 0x20]);
@@ -307,7 +307,7 @@ test('[ AVRGIRL-STK500V2 ] ::readMem', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::setParameter', function (t) {
   var a = new avrgirl(FLoptions);
-  var spy = sinon.spy(a, 'sendCmd');
+  var spy = sinon.spy(a, 'sendCmdAsync');
   var buf = Buffer.from([0x02, 0x98, 0x01]);
 
   t.plan(2);
@@ -320,8 +320,8 @@ test('[ AVRGIRL-STK500V2 ] ::setParameter', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::getParameter', function (t) {
   var a = new avrgirl(FLoptions);
-  var spyw = sinon.spy(a, 'write');
-  var spyr = sinon.spy(a, 'read');
+  var spyw = sinon.spy(a, 'writeAsync');
+  var spyr = sinon.spy(a, 'readAsync');
   var buf = Buffer.from([0x03, 0x98]);
 
   t.plan(4);
@@ -336,8 +336,8 @@ test('[ AVRGIRL-STK500V2 ] ::getParameter', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::readFuses', function (t) {
   var a = new avrgirl(FLoptions);
-  var spyw = sinon.spy(a, 'write');
-  var spyr = sinon.spy(a, 'read');
+  var spyw = sinon.spy(a, 'writeAsync');
+  var spyr = sinon.spy(a, 'readAsync');
   var fuses = 3;
 
   t.plan(5);
@@ -353,8 +353,8 @@ test('[ AVRGIRL-STK500V2 ] ::readFuses', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::readFuse', function (t) {
   var a = new avrgirl(FLoptions);
-  var spyw = sinon.spy(a, 'write');
-  var spyr = sinon.spy(a, 'read');
+  var spyw = sinon.spy(a, 'writeAsync');
+  var spyr = sinon.spy(a, 'readAsync');
 
   t.plan(6);
 
@@ -374,7 +374,7 @@ test('[ AVRGIRL-STK500V2 ] ::readFuse', function (t) {
 // TODO: test for data length being too large, return error
 test('[ AVRGIRL-STK500V2 ] ::writeFlash', function (t) {
   var a = new avrgirl(FLoptions);
-  var spy = sinon.spy(a, 'writeMem');
+  var spy = sinon.spy(a, 'writeMemAsync');
   var tinydata = Buffer.alloc(50);
   var largedata = Buffer.alloc(500);
   var file = __dirname + '/data/pr.hex';
@@ -402,7 +402,7 @@ test('[ AVRGIRL-STK500V2 ] ::writeFlash', function (t) {
 // TODO: test for data length being too large, return error
 test('[ AVRGIRL-STK500V2 ] ::writeEeprom', function (t) {
   var a = new avrgirl(FLoptions);
-  var spy = sinon.spy(a, 'writeMem');
+  var spy = sinon.spy(a, 'writeMemAsync');
   var tinydata = Buffer.alloc(3);
   var largedata = Buffer.alloc(20);
   var file = __dirname + '/data/eeprom.hex';
@@ -429,7 +429,7 @@ test('[ AVRGIRL-STK500V2 ] ::writeEeprom', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::readEeprom', function (t) {
   var a = new avrgirl(FLoptions);
-  var spy = sinon.spy(a, 'readMem');
+  var spy = sinon.spy(a, 'readMemAsync');
   var length = 20;
 
   t.plan(3);
@@ -443,7 +443,7 @@ test('[ AVRGIRL-STK500V2 ] ::readEeprom', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::readFlash', function (t) {
   var a = new avrgirl(FLoptions);
-  var spy = sinon.spy(a, 'readMem');
+  var spy = sinon.spy(a, 'readMemAsync');
   var length = 20;
 
   t.plan(3);
@@ -485,9 +485,9 @@ test('[ AVRGIRL-STK500V2 ] ::writeMem', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::quickFlash', function (t) {
   var a = new avrgirl(FLoptions);
-  var spyEnter = sinon.spy(a, 'enterProgrammingMode');
-  var spyw = sinon.spy(a, 'writeFlash');
-  var spyExit = sinon.spy(a, 'exitProgrammingMode');
+  var spyEnter = sinon.spy(a, 'enterProgrammingModeAsync');
+  var spyw = sinon.spy(a, 'writeFlashAsync');
+  var spyExit = sinon.spy(a, 'exitProgrammingModeAsync');
   var file = __dirname + '/data/pr.hex';
 
   t.plan(4);
@@ -502,9 +502,9 @@ test('[ AVRGIRL-STK500V2 ] ::quickFlash', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::quickEeprom', function (t) {
   var a = new avrgirl(FLoptions);
-  var spyEnter = sinon.spy(a, 'enterProgrammingMode');
-  var spyw = sinon.spy(a, 'writeEeprom');
-  var spyExit = sinon.spy(a, 'exitProgrammingMode');
+  var spyEnter = sinon.spy(a, 'enterProgrammingModeAsync');
+  var spyw = sinon.spy(a, 'writeEepromAsync');
+  var spyExit = sinon.spy(a, 'exitProgrammingModeAsync');
   var file = __dirname + '/data/eeprom.hex';
 
   t.plan(4);
@@ -519,8 +519,8 @@ test('[ AVRGIRL-STK500V2 ] ::quickEeprom', function (t) {
 
 test('[ AVRGIRL-STK500V2 ] ::getChipSignature', function (t) {
   var a = new avrgirl(FLoptions);
-  var spyw = sinon.spy(a, 'write');
-  var spyr = sinon.spy(a, 'read');
+  var spyw = sinon.spy(a, 'writeAsync');
+  var spyr = sinon.spy(a, 'readAsync');
   var count = 3;
 
   t.plan(5);
@@ -537,8 +537,8 @@ test('[ AVRGIRL-STK500V2 ] ::getChipSignature', function (t) {
 test('[ AVRGIRL-STK500V2 ] ::writeFuse', function (t) {
   var a = new avrgirl(FLoptions);
   var buf = Buffer.from([0x17, 0xAC, 0xA4, 0x00, 0xFF]);
-  var spyw = sinon.spy(a, 'write');
-  var spyr = sinon.spy(a, 'read');
+  var spyw = sinon.spy(a, 'writeAsync');
+  var spyr = sinon.spy(a, 'readAsync');
 
   t.plan(3);
 
